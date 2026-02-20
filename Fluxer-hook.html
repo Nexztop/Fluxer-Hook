@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fluxer Webhook Studio Pro</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/build.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <style>
+        /* --- 1. GLOBAL & APPLE AESTHETICS --- */
+        :root {
+            --bg-deep: #050505;
+            --glass-panel: rgba(20, 20, 20, 0.85);
+            --glass-card: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent: #3A82F7;
+            --fluxer-amoled: #000000;
+            --fluxer-text: #FFFFFF;
+            --fluxer-subtext: #A0A0A0;
+            --fluxer-link: #00AFF4;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .glow-spot {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(58, 130, 247, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+            top: -300px;
+            left: 15%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- 2. LAYOUT --- */
+        .app-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .editor-zone {
+            width: 550px;
+            min-width: 450px;
+            background: var(--glass-panel);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-right: 1px solid var(--glass-border);
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 10;
+        }
+
+        .editor-zone::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .editor-zone::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #888;
+            margin-top: 2px;
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #777;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(58, 130, 247, 0.05);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            line-height: 1.5;
+        }
+
+        .glass-card {
+            background: var(--glass-card);
+            border: 1px solid var(--glass-border);
+            padding: 16px;
+            border-radius: 14px;
+        }
+
+        .row-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .row-inputs>div {
+            flex: 1;
+        }
+
+        /* --- COLOR STUDIO --- */
+        .color-presets {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .color-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .color-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .color-dot.active {
+            border-color: white;
+            transform: scale(1.15);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .rainbow-wrapper {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+            padding: 2px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .rainbow-wrapper:hover {
+            transform: scale(1.1);
+        }
+
+        .rainbow-wrapper.active {
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            border: 2px solid white;
+        }
+
+        .rainbow-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- BUTTONS --- */
+        .btn-primary {
+            background: white;
+            color: black;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary:disabled {
+            background: #333;
+            color: #777;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-primary:not(:disabled):hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid var(--glass-border);
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: rgba(242, 63, 66, 0.2);
+            color: #F23F42;
+            border: 1px solid rgba(242, 63, 66, 0.4);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* --- DISCLAIMER --- */
+        .disclaimer-area {
+            margin-top: 10px;
+            background: rgba(242, 63, 66, 0.05);
+            border: 1px solid rgba(242, 63, 66, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #ddd;
+            line-height: 1.4;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper input {
+            width: 16px;
+            height: 16px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        /* --- 4. PREVIEW ZONE --- */
+        .preview-zone {
+            flex-grow: 1;
+            background-color: var(--fluxer-amoled);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .fluxer-mock-window {
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .f-msg {
+            display: flex;
+            gap: 16px;
+            padding: 8px 0;
+        }
+
+        .f-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-size: cover;
+            flex-shrink: 0;
+        }
+
+        .f-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .f-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .f-username {
+            font-weight: 600;
+            color: var(--fluxer-text);
+            font-size: 16px;
+        }
+
+        .f-bot-tag {
+            background: #5865F2;
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .f-timestamp {
+            color: var(--fluxer-subtext);
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        .f-text {
+            color: #DBDEE1;
+            font-size: 1rem;
+            line-height: 1.375rem;
+            white-space: pre-wrap;
+        }
+
+        /* Markdown Styling */
+        .f-text a {
+            color: var(--fluxer-link);
+            text-decoration: none;
+        }
+
+        .f-text a:hover {
+            text-decoration: underline;
+        }
+
+        .f-text strong {
+            font-weight: 700;
+            color: white;
+        }
+
+        .spoiler {
+            background-color: #202020;
+            color: transparent;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 0 2px;
+        }
+
+        .spoiler:hover {
+            background-color: #2b2d31;
+            color: inherit;
+        }
+
+        .small-text {
+            font-size: 0.85em;
+            color: var(--fluxer-subtext);
+        }
+
+        /* Headers */
+        .f-text h1,
+        .fe-desc h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 12px 0 4px 0;
+            line-height: 1.2;
+            color: white;
+        }
+
+        .f-text h2,
+        .fe-desc h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 10px 0 4px 0;
+            line-height: 1.2;
+            color: white;
+        }
+
+        .f-text h3,
+        .fe-desc h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 8px 0 4px 0;
+            line-height: 1.2;
+            color: white;
+        }
+
+        .f-text p,
+        .fe-desc p {
+            margin: 0 0 8px 0;
+        }
+
+        .f-text *:first-child,
+        .fe-desc *:first-child {
+            margin-top: 0;
+        }
+
+        .f-text *:last-child,
+        .fe-desc *:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Blockquotes & Admonitions */
+        blockquote {
+            border-left: 4px solid #4F545C;
+            margin: 5px 0 5px 0;
+            padding-left: 10px;
+            color: #b5bac1;
+        }
+
+        .admonition {
+            border-left: 4px solid #fff;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 0 4px 4px 0;
+            display: block;
+        }
+
+        .adm-title {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9em;
+        }
+
+        .adm-note {
+            border-color: #5865F2;
+        }
+
+        .adm-note .adm-title {
+            color: #5865F2;
+        }
+
+        .adm-tip {
+            border-color: #23A559;
+        }
+
+        .adm-tip .adm-title {
+            color: #23A559;
+        }
+
+        .adm-warn {
+            border-color: #F0B132;
+        }
+
+        .adm-warn .adm-title {
+            color: #F0B132;
+        }
+
+        .adm-danger {
+            border-color: #F23F42;
+        }
+
+        .adm-danger .adm-title {
+            color: #F23F42;
+        }
+
+        .adm-important {
+            border-color: #9B59B6;
+        }
+
+        .adm-important .adm-title {
+            color: #9B59B6;
+        }
+
+        /* Code Blocks */
+        code {
+            background-color: #111214;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 85%;
+            font-family: monospace;
+            color: #d1d5db;
+        }
+
+        pre {
+            background-color: #111214;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #1e1f22;
+            overflow-x: auto;
+            margin-top: 6px;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            border: none;
+        }
+
+        /* --- EMBED STYLING --- */
+        .f-embed {
+            margin-top: 8px;
+            background-color: #0b0c0e;
+            border-left: 8px solid;
+            border-radius: 4px;
+            padding: 16px;
+            max-width: 520px;
+            border-top: 1px solid #1e1f22;
+            border-right: 1px solid #1e1f22;
+            border-bottom: 1px solid #1e1f22;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Author Block */
+        .fe-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .fe-author-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .fe-author-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        a.fe-author-name:hover {
+            text-decoration: underline;
+        }
+
+        .fe-content-wrapper {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .fe-main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .fe-title {
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        a.fe-title {
+            color: var(--fluxer-link);
+            text-decoration: none;
+        }
+
+        a.fe-title:hover {
+            text-decoration: underline;
+        }
+
+        .fe-desc {
+            color: #dcddde;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            margin-bottom: 8px;
+        }
+
+        .fe-desc a {
+            color: var(--fluxer-link);
+            text-decoration: none;
+        }
+
+        .fe-desc a:hover {
+            text-decoration: underline;
+        }
+
+        /* Images & Thumbnails */
+        .fe-thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .fe-image {
+            width: 100%;
+            border-radius: 4px;
+            margin-top: 16px;
+            max-height: 400px;
+            object-fit: cover;
+        }
+
+        /* Footer */
+        .fe-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .fe-footer-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .fe-footer-text {
+            font-size: 12px;
+            color: #dcddde;
+            font-weight: 500;
+        }
+
+        /* Grid Fields */
+        .fe-fields {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px 8px;
+            margin-top: 10px;
+        }
+
+        .fe-field {
+            grid-column: 1 / -1;
+            word-break: break-word;
+        }
+
+        .fe-field.inline {
+            grid-column: span 1;
+        }
+
+        .fe-field-name {
+            font-weight: 600;
+            color: white;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .fe-field-value {
+            color: #dcddde;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .fe-field-value a {
+            color: var(--fluxer-link);
+            text-decoration: none;
+        }
+
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .modal-box {
+            background: var(--glass-panel);
+            border: 1px solid var(--glass-border);
+            width: 650px;
+            max-width: 95%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Disclaimer Modal Specific */
+        #entryModal .modal-box {
+            width: 500px;
+            text-align: center;
+            padding: 40px;
+        }
+
+        #entryModal h2 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+
+        #entryModal p {
+            color: #ccc;
+            line-height: 1.6;
+            font-size: 15px;
+            margin-bottom: 30px;
+        }
+
+        .g-section {
+            margin-bottom: 30px;
+        }
+
+        .g-title {
+            font-size: 18px;
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 5px;
+        }
+
+        .g-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            color: #ccc;
+        }
+
+        .g-table td {
+            padding: 8px 5px;
+            border-bottom: 1px solid #1a1a1a;
+            vertical-align: top;
+        }
+
+        .g-table td:first-child {
+            font-family: monospace;
+            color: #fff;
+            width: 45%;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+        }
+
+        .g-note {
+            background: rgba(58, 130, 247, 0.1);
+            border-left: 3px solid var(--accent);
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #ddd;
+        }
+
+        .g-code {
+            background: #000;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            margin-top: 5px;
+            border: 1px solid #222;
+            display: block;
+            color: #a6accd;
+            white-space: pre-wrap;
+        }
+
+        /* The static preview box for the modal guide */
+        .g-math-preview {
+            background: #1a1b1e;
+            border: 1px solid #2b2d31;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 10px;
+            overflow-x: auto;
+            text-align: center;
+        }
+
+        /* --- APPLE COLOR PICKER MODAL --- */
+        .cp-modal-box {
+            width: 320px;
+            background: #1c1c1e;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cp-wheel-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        .cp-wheel {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .cp-reticle {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.8), inset 0 0 4px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+        }
+
+        .cp-slider-container {
+            width: 100%;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .cp-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 28px;
+            border-radius: 14px;
+            outline: none;
+            background: linear-gradient(to right, #000, #f00);
+            /* dynamically updated */
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .cp-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: transparent;
+            border: 3px solid white;
+            cursor: pointer;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .cp-info {
+            font-family: monospace;
+            color: #ddd;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 5px;
+        }
+
+        .cp-buttons {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .cp-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 15px;
+            transition: 0.15s;
+        }
+
+        .cp-btn-cancel {
+            background: #3a3a3c;
+            color: white;
+        }
+
+        .cp-btn-cancel:hover {
+            background: #4a4a4c;
+        }
+
+        .cp-btn-confirm {
+            background: white;
+            color: black;
+        }
+
+        .cp-btn-confirm:hover {
+            background: #e0e0e0;
+        }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        .fab-toggle {
+            display: none;
+        }
+
+        @media (max-width: 850px) {
+            .app-layout {
+                flex-direction: column;
+            }
+
+            .editor-zone {
+                width: 100%;
+                min-width: 100%;
+                height: 100vh;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+
+            .preview-zone {
+                display: none;
+                width: 100%;
+                height: 100vh;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 50;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+
+            body.show-preview .editor-zone {
+                display: none;
+            }
+
+            body.show-preview .preview-zone {
+                display: flex;
+            }
+
+            .fab-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                position: fixed;
+                bottom: 25px;
+                right: 25px;
+                z-index: 100;
+                background: var(--accent);
+                color: white;
+                border: none;
+                border-radius: 30px;
+                padding: 15px 20px;
+                font-weight: bold;
+                font-size: 14px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+
+            .fab-toggle:active {
+                transform: scale(0.95);
+            }
+
+            .row-inputs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="glow-spot"></div>
+    <button class="fab-toggle" id="fabToggle" onclick="toggleMobileView()"><i class="octicon octicon-eye"></i>
+        Preview</button>
+
+    <div class="modal-overlay" id="entryModal" style="display: flex;">
+        <div class="modal-box">
+            <h2>Welcome to the Studio</h2>
+            <p>Heads up! This is a 100% unofficial tool. It's simply a personal project created to help
+                us design better webhooks. It has absolutely no affiliation with Fluxer.
+                <br><br>For official information or resources, visit <a href="https://fluxer.app"
+                    style="color: #00A8FC; text-decoration: none;">fluxer.app</a>.
+            </p>
+            <button class="btn-primary" onclick="closeEntryModal()">I Understand, Let's Build</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="guideModal" onclick="closeModalOnOutsideClick(event, 'guideModal')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 style="margin:0; font-size:18px;">Markdown & LaTeX Guide</h2>
+                <button class="close-btn" onclick="toggleModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="g-section">
+                    <div class="g-title">Headers & Formatting</div>
+                    <table class="g-table">
+                        <tr>
+                            <td># Heading 1</td>
+                            <td>
+                                <h1 style="margin:0; font-size:22px; line-height:1; color:white;">Heading 1</h1>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>## Heading 2</td>
+                            <td>
+                                <h2 style="margin:0; font-size:18px; line-height:1; color:white;">Heading 2</h2>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>### Heading 3</td>
+                            <td>
+                                <h3 style="margin:0; font-size:15px; line-height:1; color:white;">Heading 3</h3>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>**bold**</td>
+                            <td><strong>Bold</strong></td>
+                        </tr>
+                        <tr>
+                            <td>*italic*</td>
+                            <td><em>Italic</em></td>
+                        </tr>
+                        <tr>
+                            <td>__underlined__</td>
+                            <td><u>Underlined</u></td>
+                        </tr>
+                        <tr>
+                            <td>~~strike~~</td>
+                            <td><s>Strikethrough</s></td>
+                        </tr>
+                        <tr>
+                            <td>||spoiler||</td>
+                            <td><span class="spoiler">Hidden Spoiler</span></td>
+                        </tr>
+                        <tr>
+                            <td>`code`</td>
+                            <td>Inline Code</td>
+                        </tr>
+                        <tr>
+                            <td>-# text</td>
+                            <td><span style="font-size: 0.8em; color: var(--fluxer-subtext)">Small subtext</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="g-section">
+                    <div class="g-title">Block Elements & Admonitions</div>
+                    <table class="g-table">
+                        <tr>
+                            <td>> text</td>
+                            <td>Single line quote</td>
+                        </tr>
+                        <tr>
+                            <td>>>> text</td>
+                            <td>Multiline quote</td>
+                        </tr>
+                        <tr>
+                            <td>> [!NOTE]<br>Text</td>
+                            <td><span
+                                    style="color:#5865F2; font-weight:bold; border-left: 3px solid #5865F2; padding-left: 5px;">Note</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>> [!TIP]<br>Text</td>
+                            <td><span
+                                    style="color:#23A559; font-weight:bold; border-left: 3px solid #23A559; padding-left: 5px;">Tip</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>> [!IMPORTANT]<br>Text</td>
+                            <td><span
+                                    style="color:#9B59B6; font-weight:bold; border-left: 3px solid #9B59B6; padding-left: 5px;">Important</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>> [!WARNING]<br>Text</td>
+                            <td><span
+                                    style="color:#F0B132; font-weight:bold; border-left: 3px solid #F0B132; padding-left: 5px;">Warning</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>> [!CAUTION]<br>Text</td>
+                            <td><span
+                                    style="color:#F23F42; font-weight:bold; border-left: 3px solid #F23F42; padding-left: 5px;">Caution</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="g-section">
+                    <div class="g-title">LaTeX (Math)</div>
+                    <div class="g-note">Fluxer supports complex LaTeX math formulas. Wrap them in a code block with
+                        `latex`.</div>
+                    <div class="g-code">```latex<br>\int_0^\infty e^{-x} dx<br>```</div>
+                    <div class="g-math-preview" id="staticMathPreview"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="colorPickerModal" onclick="closeModalOnOutsideClick(event, 'colorPickerModal')">
+        <div class="cp-modal-box" onclick="event.stopPropagation()">
+            <div class="cp-wheel-container" id="cpWheelContainer" onmousedown="onWheelInteract(event)"
+                onmousemove="onWheelDrag(event)" onmouseup="endWheelDrag()" onmouseleave="endWheelDrag()"
+                ontouchstart="onWheelInteract(event)" ontouchmove="onWheelDrag(event)" ontouchend="endWheelDrag()">
+                <canvas id="cpCanvas" class="cp-wheel"></canvas>
+                <div class="cp-reticle" id="cpReticle"></div>
+            </div>
+
+            <div class="cp-slider-container">
+                <input type="range" min="0" max="1" step="0.01" value="1" class="cp-slider" id="cpSlider"
+                    oninput="onSliderChange()">
+            </div>
+
+            <div class="cp-info" id="cpInfoText">RGB: 255, 255, 255 | #FFFFFF</div>
+
+            <div class="cp-buttons">
+                <button class="cp-btn cp-btn-cancel" onclick="closeColorPicker()">Cancel</button>
+                <button class="cp-btn cp-btn-confirm" onclick="confirmColorPicker()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-layout">
+        <div class="editor-zone" id="editorZone">
+            <div class="top-header">
+                <div class="header-brand">
+                    <img src="https://fluxerstatic.com/marketing/branding/symbol-white.svg" class="brand-logo"
+                        alt="Fluxer Logo" style="width: 50px; height: 50px; object-fit: contain;">
+                    <div>
+                        <h1>Fluxer Webhook Editor</h1>
+                        <div class="subtitle">Embeds done easy</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-icon" onclick="document.getElementById('fileInput').click()"
+                        title="Load Config">📂 Load</button>
+                    <button class="btn-icon" onclick="saveConfig()" title="Save Config">💾 Save</button>
+                    <input type="file" id="fileInput" accept=".json" style="display: none;"
+                        onchange="loadConfig(event)">
+                </div>
+            </div>
+
+            <button class="btn-secondary" onclick="toggleModal()"><span><i class="octicon octicon-book"></i> Open
+                    Markdown & LaTeX Guide</span></button>
+
+            <div class="glass-card">
+                <label>Connection (Webhook URL)</label>
+                <input type="password" id="webhookUrl" placeholder="https://fluxer.app/api/webhooks/..."
+                    oninput="updateState('webhookUrl', this.value)" />
+                <label style="margin-top: 10px;">Message ID (Optional: To Edit Existing Message)</label>
+                <input type="text" id="messageId" placeholder="Leave blank to send new message"
+                    oninput="updateState('messageId', this.value)" />
+            </div>
+
+            <div class="glass-card row-inputs">
+                <div>
+                    <label>Bot Name</label>
+                    <input type="text" id="username" placeholder="Fluxer System"
+                        oninput="updateState('username', this.value)" />
+                </div>
+                <div>
+                    <label>Avatar URL</label>
+                    <input type="text" id="avatar" placeholder="https://..."
+                        oninput="updateState('avatar', this.value)" />
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <label>Message Content</label>
+                <textarea id="content" placeholder="Hello! (you can use) ||spoilers||, **bold**, or > [!NOTE]"
+                    oninput="updateState('content', this.value)"></textarea>
+            </div>
+
+            <div id="embedsContainer"></div>
+
+            <button class="btn-secondary" style="justify-content: center; border-style: dashed;" onclick="addEmbed()"><i
+                    class="octicon octicon-plus"></i> Add Another Embed</button>
+
+            <div class="disclaimer-area">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="forgiveCheckbox" onchange="toggleSendButton()">
+                    <span><strong>Wait!</strong> I understand that this page was generated by AI and that the creator
+                        has no
+                        coding knowledge. I forgive you, brochacho, for any bugs that may occur. I just wanted a better
+                        alternative so I can use it for my own webhooks.</span>
+                </label>
+            </div>
+
+            <button class="btn-primary" id="sendBtn" onclick="sendWebhook()" disabled>Send Message</button>
+        </div>
+
+        <div class="preview-zone">
+            <div class="fluxer-mock-window">
+                <div class="f-msg">
+                    <div class="f-avatar" id="prevAvatar" style="background-color: #5865F2;"></div>
+                    <div class="f-content">
+                        <div class="f-header">
+                            <span class="f-username" id="prevName">Fluxer System</span>
+                            <span class="f-bot-tag">APP</span>
+                            <span class="f-timestamp">Today at 12:00 PM</span>
+                        </div>
+                        <div class="f-text" id="prevContent"></div>
+                        <div id="prevEmbedsContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. STATE MANAGEMENT ---
+        let appState = {
+            webhookUrl: "", messageId: "", username: "Fluxer System", avatar: "", content: "",
+            embeds: [{
+                authorName: "", authorUrl: "", authorIcon: "",
+                title: "", url: "", description: "", color: "#5865F2",
+                imageUrl: "", thumbnailUrl: "", footerText: "", footerIcon: "", fields: []
+            }]
+        };
+
+        // --- 2. MODAL & KEYBOARD LOGIC ---
+        function closeEntryModal() { document.getElementById('entryModal').style.display = 'none'; }
+        function toggleModal() { const m = document.getElementById('guideModal'); m.style.display = (m.style.display === 'flex') ? 'none' : 'flex'; }
+
+        function closeModalOnOutsideClick(event, modalId) {
+            if (event.target.id === modalId) {
+                document.getElementById(modalId).style.display = 'none';
+            }
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                document.getElementById('guideModal').style.display = 'none';
+                document.getElementById('colorPickerModal').style.display = 'none';
+            }
+        });
+
+
+        // --- 3. APPLE COLOR PICKER ENGINE ---
+        let cpEmbedIndex = -1;
+        let cpH = 0, cpS = 0, cpV = 1;
+        let isDraggingWheel = false;
+
+        const cpSize = 250;
+        const cpRadius = cpSize / 2;
+
+        function initColorWheel() {
+            const canvas = document.getElementById('cpCanvas');
+            canvas.width = cpSize;
+            canvas.height = cpSize;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            const imgData = ctx.createImageData(cpSize, cpSize);
+
+            for (let y = 0; y < cpSize; y++) {
+                for (let x = 0; x < cpSize; x++) {
+                    let dx = x - cpRadius;
+                    let dy = y - cpRadius;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let idx = (y * cpSize + x) * 4;
+
+                    if (distance <= cpRadius) {
+                        let angle = Math.atan2(dy, dx);
+                        let hue = angle * (180 / Math.PI);
+                        if (hue < 0) hue += 360;
+                        let sat = distance / cpRadius;
+
+                        let rgb = hsvToRgb(hue, sat, 1); // Wheel is always visually full brightness
+
+                        imgData.data[idx] = rgb[0];
+                        imgData.data[idx + 1] = rgb[1];
+                        imgData.data[idx + 2] = rgb[2];
+                        imgData.data[idx + 3] = 255;
+                    } else {
+                        imgData.data[idx + 3] = 0;
+                    }
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        function openColorPicker(eIndex, currentHex) {
+            cpEmbedIndex = eIndex;
+            document.getElementById('colorPickerModal').style.display = 'flex';
+
+            // Convert current hex back to HSV
+            let [h, s, v] = hexToHsv(currentHex);
+            cpH = h; cpS = s; cpV = v;
+
+            document.getElementById('cpSlider').value = cpV;
+            updatePickerUI();
+        }
+
+        function closeColorPicker() {
+            document.getElementById('colorPickerModal').style.display = 'none';
+        }
+
+        function confirmColorPicker() {
+            const rgb = hsvToRgb(cpH, cpS, cpV);
+            const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+
+            // Set it in our main app state natively so it rerenders the UI cleanly
+            appState.embeds[cpEmbedIndex].color = hex;
+            renderEditor();
+
+            closeColorPicker();
+        }
+
+        function onWheelInteract(e) {
+            isDraggingWheel = true;
+            onWheelDrag(e);
+        }
+
+        function onWheelDrag(e) {
+            if (!isDraggingWheel) return;
+            e.preventDefault(); // stop scrolling on mobile
+
+            const container = document.getElementById('cpWheelContainer');
+            const rect = container.getBoundingClientRect();
+
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            let x = clientX - rect.left - cpRadius;
+            let y = clientY - rect.top - cpRadius;
+
+            let distance = Math.sqrt(x * x + y * y);
+            if (distance > cpRadius) {
+                // clamp to edge
+                x = (x / distance) * cpRadius;
+                y = (y / distance) * cpRadius;
+                distance = cpRadius;
+            }
+
+            let angle = Math.atan2(y, x);
+            cpH = angle * (180 / Math.PI);
+            if (cpH < 0) cpH += 360;
+            cpS = distance / cpRadius;
+
+            updatePickerUI();
+        }
+
+        function endWheelDrag() {
+            isDraggingWheel = false;
+        }
+
+        function onSliderChange() {
+            cpV = parseFloat(document.getElementById('cpSlider').value);
+            updatePickerUI();
+        }
+
+        function updatePickerUI() {
+            // Update Reticle Position
+            let angle = cpH * (Math.PI / 180);
+            let distance = cpS * cpRadius;
+            let rx = Math.cos(angle) * distance + cpRadius;
+            let ry = Math.sin(angle) * distance + cpRadius;
+
+            document.getElementById('cpReticle').style.left = `${rx}px`;
+            document.getElementById('cpReticle').style.top = `${ry}px`;
+
+            // Calculate exact colors
+            const pureWheelRgb = hsvToRgb(cpH, cpS, 1);
+            const finalRgb = hsvToRgb(cpH, cpS, cpV);
+            const hex = rgbToHex(finalRgb[0], finalRgb[1], finalRgb[2]);
+
+            // Update Slider Gradient Background
+            const pureColorHex = rgbToHex(pureWheelRgb[0], pureWheelRgb[1], pureWheelRgb[2]);
+            document.getElementById('cpSlider').style.background = `linear-gradient(to right, #000000, ${pureColorHex})`;
+
+            // Update Info Text
+            document.getElementById('cpInfoText').innerText = `RGB: ${finalRgb[0]}, ${finalRgb[1]}, ${finalRgb[2]} | ${hex.toUpperCase()}`;
+        }
+
+        // --- MATH UTIL FUNCTIONS FOR PICKER ---
+        function hsvToRgb(h, s, v) {
+            let r, g, b, i, f, p, q, t;
+            i = Math.floor(h / 60);
+            f = h / 60 - i;
+            p = v * (1 - s);
+            q = v * (1 - f * s);
+            t = v * (1 - (1 - f) * s);
+            switch (i % 6) {
+                case 0: r = v, g = t, b = p; break;
+                case 1: r = q, g = v, b = p; break;
+                case 2: r = p, g = v, b = t; break;
+                case 3: r = p, g = q, b = v; break;
+                case 4: r = t, g = p, b = v; break;
+                case 5: r = v, g = p, b = q; break;
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1).toUpperCase();
+        }
+
+        function hexToHsv(hex) {
+            let r = parseInt(hex.substr(1, 2), 16) / 255;
+            let g = parseInt(hex.substr(3, 2), 16) / 255;
+            let b = parseInt(hex.substr(5, 2), 16) / 255;
+
+            let max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, v = max;
+            let d = max - min;
+            s = max === 0 ? 0 : d / max;
+
+            if (max === min) {
+                h = 0; // achromatic
+            } else {
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return [h * 360, s, v];
+        }
+
+
+        // --- 4. EDITOR UI GENERATION ---
+        function renderEditor() {
+            document.getElementById('webhookUrl').value = appState.webhookUrl || "";
+            document.getElementById('messageId').value = appState.messageId || "";
+            document.getElementById('username').value = appState.username || "";
+            document.getElementById('avatar').value = appState.avatar || "";
+            document.getElementById('content').value = appState.content || "";
+
+            const container = document.getElementById('embedsContainer');
+            container.innerHTML = "";
+
+            appState.embeds.forEach((embed, eIndex) => {
+                let fieldsHtml = "";
+                embed.fields.forEach((field, fIndex) => {
+                    fieldsHtml += `
+                        <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--glass-border);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="font-size: 11px; font-weight: bold; color: #888;">FIELD ${fIndex + 1}</span>
+                                <button class="btn-danger" style="margin: 0; padding: 2px 8px;" onclick="removeField(${eIndex}, ${fIndex})"><i class="octicon octicon-trashcan"></i> Remove</button>
+                            </div>
+                            <input type="text" placeholder="Field Name" value="${field.name || ''}" oninput="updateField(${eIndex}, ${fIndex}, 'name', this.value)" style="margin-bottom: 5px;">
+                            <textarea placeholder="Field Value" oninput="updateField(${eIndex}, ${fIndex}, 'value', this.value)" style="min-height: 40px;">${field.value || ''}</textarea>
+                            <label style="margin-top: 8px; display: flex; align-items: center; gap: 5px; cursor: pointer; text-transform: none; color: #ddd;">
+                                <input type="checkbox" style="width: 14px; height: 14px;" ${field.inline ? 'checked' : ''} onchange="updateField(${eIndex}, ${fIndex}, 'inline', this.checked)">
+                                Make Inline (Column)
+                            </label>
+                        </div>
+                    `;
+                });
+
+                const presetColors = ['#5865F2', '#F23F42', '#23A559', '#F0B132', '#000000'];
+                const isCustomColor = !presetColors.includes(embed.color);
+
+                const embedHTML = `
+                    <div class="glass-card" style="margin-bottom: 15px; position: relative;">
+                        ${eIndex > 0 ? `<button class="btn-danger" style="position: absolute; top: 10px; right: 10px; margin:0;" onclick="removeEmbed(${eIndex})"><i class="octicon octicon-trashcan"></i> Delete Embed</button>` : ''}
+                        <h3 style="margin: 0 0 15px 0; font-size: 16px;">Embed ${eIndex + 1}</h3>
+                        
+                        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <div class="row-inputs">
+                                <div><label>Author Name</label><input type="text" placeholder="John Doe..." value="${embed.authorName || ''}" oninput="updateEmbed(${eIndex}, 'authorName', this.value)" /></div>
+                                <div><label>Author URL</label><input type="text" placeholder="https://..." value="${embed.authorUrl || ''}" oninput="updateEmbed(${eIndex}, 'authorUrl', this.value)" /></div>
+                            </div>
+                            <label>Author Icon URL</label>
+                            <input type="text" placeholder="https://..." value="${embed.authorIcon || ''}" oninput="updateEmbed(${eIndex}, 'authorIcon', this.value)" />
+                        </div>
+
+                        <div class="row-inputs">
+                            <div><label>Embed Title</label><input type="text" placeholder="Title..." value="${embed.title || ''}" oninput="updateEmbed(${eIndex}, 'title', this.value)" /></div>
+                            <div><label>Title URL</label><input type="text" placeholder="https://..." value="${embed.url || ''}" oninput="updateEmbed(${eIndex}, 'url', this.value)" /></div>
+                        </div>
+                        
+                        <label>Embed Description</label>
+                        <textarea placeholder="Description..." oninput="updateEmbed(${eIndex}, 'description', this.value)">${embed.description || ''}</textarea>
+                        
+                        <div class="row-inputs" style="margin-top: 10px;">
+                            <div><label>Image URL (Large)</label><input type="text" placeholder="https://..." value="${embed.imageUrl || ''}" oninput="updateEmbed(${eIndex}, 'imageUrl', this.value)" /></div>
+                            <div><label>Thumbnail URL (Small)</label><input type="text" placeholder="https://..." value="${embed.thumbnailUrl || ''}" oninput="updateEmbed(${eIndex}, 'thumbnailUrl', this.value)" /></div>
+                        </div>
+
+                        <div class="row-inputs" style="margin-top: 10px;">
+                            <div><label>Footer Text</label><input type="text" placeholder="Embed made by..." value="${embed.footerText || ''}" oninput="updateEmbed(${eIndex}, 'footerText', this.value)" /></div>
+                            <div><label>Footer Icon URL</label><input type="text" placeholder="https://..." value="${embed.footerIcon || ''}" oninput="updateEmbed(${eIndex}, 'footerIcon', this.value)" /></div>
+                        </div>
+
+                        <label style="margin-top: 15px;">Embed Color</label>
+                        <div class="color-studio">
+                            <div class="color-presets">
+                                <div class="color-dot ${embed.color === '#5865F2' ? 'active' : ''}" style="background:#5865F2;" onclick="setEmbedColor(${eIndex}, '#5865F2')"></div>
+                                <div class="color-dot ${embed.color === '#F23F42' ? 'active' : ''}" style="background:#F23F42;" onclick="setEmbedColor(${eIndex}, '#F23F42')"></div>
+                                <div class="color-dot ${embed.color === '#23A559' ? 'active' : ''}" style="background:#23A559;" onclick="setEmbedColor(${eIndex}, '#23A559')"></div>
+                                <div class="color-dot ${embed.color === '#F0B132' ? 'active' : ''}" style="background:#F0B132;" onclick="setEmbedColor(${eIndex}, '#F0B132')"></div>
+                                <div class="color-dot ${embed.color === '#000000' ? 'active' : ''}" style="background:#000000;" onclick="setEmbedColor(${eIndex}, '#000000')"></div>
+                                
+                                <div class="rainbow-wrapper ${isCustomColor ? 'active' : ''}" onclick="openColorPicker(${eIndex}, '${embed.color}')">
+                                    <div class="rainbow-inner" style="background-color: ${isCustomColor ? embed.color : '#222'}">
+                                        <span style="color:white; font-size:18px; font-weight:bold; margin-top: -2px;">+</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <label>Fields (Columns)</label>
+                            ${fieldsHtml}
+                            <button class="btn-icon" style="margin-top: 10px; width: 100%; border-style: dashed; justify-content:center;" onclick="addField(${eIndex})"><i class="octicon octicon-plus"></i> Add Field</button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += embedHTML;
+            });
+
+            renderPreview();
+        }
+
+        // --- 5. STATE UPDATERS ---
+        function updateState(key, val) { appState[key] = val; renderPreview(); }
+        function updateEmbed(eIndex, key, val) { appState.embeds[eIndex][key] = val; renderPreview(); }
+        function setEmbedColor(eIndex, hex) { appState.embeds[eIndex].color = hex; renderEditor(); }
+
+        function addEmbed() { appState.embeds.push({ authorName: "", authorUrl: "", authorIcon: "", title: "", url: "", description: "", color: "#5865F2", imageUrl: "", thumbnailUrl: "", footerText: "", footerIcon: "", fields: [] }); renderEditor(); }
+        function removeEmbed(eIndex) { appState.embeds.splice(eIndex, 1); renderEditor(); }
+
+        function addField(eIndex) { appState.embeds[eIndex].fields.push({ name: "", value: "", inline: false }); renderEditor(); }
+        function updateField(eIndex, fIndex, key, val) { appState.embeds[eIndex].fields[fIndex][key] = val; renderPreview(); }
+        function removeField(eIndex, fIndex) { appState.embeds[eIndex].fields.splice(fIndex, 1); renderEditor(); }
+
+        // --- 6. MARKDOWN & PREVIEW ENGINE (WITH BULLETPROOF KaTeX) ---
+        function parseFluxerMarkdown(text) {
+            if (!text) return "";
+            let parsed = text;
+
+            parsed = parsed.replace(/^-#\s+(.*)$/gm, '<span class="small-text">$1</span>');
+            parsed = parsed.replace(/\|\|(.*?)\|\|/g, '<span class="spoiler">$1</span>');
+            parsed = parsed.replace(/<@(.*?)>/g, '<span style="background:#3c4270; color:#c9cdfb; padding:0 4px; border-radius:3px;">@$1</span>');
+            parsed = parsed.replace(/<#(.*?)>/g, '<span style="background:#3c4270; color:#c9cdfb; padding:0 4px; border-radius:3px;">#$1</span>');
+            parsed = parsed.replace(/<t:([0-9]+):[a-zA-Z]>/g, '<span style="background:#2b2d31; padding:0 4px; border-radius:3px; color:#ddd; font-size:0.9em;">📅 Timestamp</span>');
+
+            if (parsed.includes('>>> ')) {
+                const parts = parsed.split('>>> ');
+                parsed = parts[0] + '<blockquote>' + parts[1].replace(/\n/g, '<br>') + '</blockquote>';
+            }
+
+            const types = { "NOTE": "adm-note", "TIP": "adm-tip", "IMPORTANT": "adm-important", "WARNING": "adm-warn", "CAUTION": "adm-danger" };
+            for (const [key, cls] of Object.entries(types)) {
+                const regex = new RegExp(`^> \\[\\!${key}\\] (.*)`, 'gm');
+                parsed = parsed.replace(regex, `<div class="admonition ${cls}"><span class="adm-title">${key}</span>$1</div>`);
+            }
+
+            if (typeof marked !== 'undefined') {
+                parsed = marked.parse(parsed);
+
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = parsed;
+
+                const latexBlocks = tempDiv.querySelectorAll('code.language-latex');
+                latexBlocks.forEach(block => {
+                    try {
+                        const formula = block.textContent;
+                        const rendered = katex.renderToString(formula.trim(), { displayMode: true, throwOnError: false });
+
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = rendered;
+                        wrapper.style.margin = "10px 0";
+                        wrapper.style.overflowX = "auto";
+                        wrapper.style.textAlign = "center";
+
+                        block.parentElement.replaceWith(wrapper);
+                    } catch (e) { console.error("KaTeX Render Error:", e); }
+                });
+
+                parsed = tempDiv.innerHTML;
+            } else {
+                parsed = parsed.replace(/\n/g, '<br>');
+            }
+
+            return parsed;
+        }
+
+        function renderPreview() {
+            document.getElementById('prevName').innerText = appState.username || "Fluxer System";
+            const avDiv = document.getElementById('prevAvatar');
+            if (appState.avatar) avDiv.style.backgroundImage = `url('${appState.avatar}')`;
+            else { avDiv.style.backgroundImage = 'none'; avDiv.style.backgroundColor = '#5865F2'; }
+
+            document.getElementById('prevContent').innerHTML = parseFluxerMarkdown(appState.content);
+
+            const previewContainer = document.getElementById('prevEmbedsContainer');
+            previewContainer.innerHTML = "";
+
+            appState.embeds.forEach(embed => {
+                if (!embed.authorName && !embed.title && !embed.description && embed.fields.length === 0 && !embed.imageUrl && !embed.thumbnailUrl && !embed.footerText) return;
+
+                let authorHtml = "";
+                if (embed.authorName) {
+                    let aIcon = embed.authorIcon ? `<img src="${embed.authorIcon}" class="fe-author-icon" onerror="this.style.display='none'">` : '';
+                    let aName = embed.authorUrl
+                        ? `<a href="${embed.authorUrl}" target="_blank" class="fe-author-name">${embed.authorName}</a>`
+                        : `<span class="fe-author-name">${embed.authorName}</span>`;
+                    authorHtml = `<div class="fe-author">${aIcon}${aName}</div>`;
+                }
+
+                let titleHtml = "";
+                if (embed.title) {
+                    titleHtml = embed.url
+                        ? `<a href="${embed.url}" target="_blank" class="fe-title">${embed.title}</a>`
+                        : `<div class="fe-title">${embed.title}</div>`;
+                }
+
+                let thumbHtml = embed.thumbnailUrl ? `<img src="${embed.thumbnailUrl}" class="fe-thumbnail" onerror="this.style.display='none'">` : '';
+                let imageHtml = embed.imageUrl ? `<img src="${embed.imageUrl}" class="fe-image" onerror="this.style.display='none'">` : '';
+
+                let footerHtml = "";
+                if (embed.footerText || embed.footerIcon) {
+                    let fIcon = embed.footerIcon ? `<img src="${embed.footerIcon}" class="fe-footer-icon" onerror="this.style.display='none'">` : '';
+                    let fText = embed.footerText ? `<span class="fe-footer-text">${embed.footerText}</span>` : '';
+                    footerHtml = `<div class="fe-footer">${fIcon}${fText}</div>`;
+                }
+
+                let fieldsHtml = "";
+                if (embed.fields.length > 0) {
+                    fieldsHtml = `<div class="fe-fields">`;
+                    embed.fields.forEach(f => {
+                        if (!f.name && !f.value) return;
+                        fieldsHtml += `
+                            <div class="fe-field ${f.inline ? 'inline' : ''}">
+                                <div class="fe-field-name">${parseFluxerMarkdown(f.name || '\u200B')}</div>
+                                <div class="fe-field-value">${parseFluxerMarkdown(f.value || '\u200B')}</div>
+                            </div>
+                        `;
+                    });
+                    fieldsHtml += `</div>`;
+                }
+
+                previewContainer.innerHTML += `
+                    <div class="f-embed" style="border-left-color: ${embed.color};">
+                        <div class="fe-content-wrapper">
+                            <div class="fe-main-content">
+                                ${authorHtml}
+                                ${titleHtml}
+                                ${embed.description ? `<div class="fe-desc">${parseFluxerMarkdown(embed.description)}</div>` : ''}
+                                ${fieldsHtml}
+                            </div>
+                            ${thumbHtml}
+                        </div>
+                        ${imageHtml}
+                        ${footerHtml}
+                    </div>
+                `;
+            });
+        }
+
+        // --- 7. MOBILE VIEW TOGGLE ---
+        function toggleMobileView() {
+            const isPreview = document.body.classList.toggle('show-preview');
+            document.getElementById('fabToggle').innerHTML = isPreview ? '<i class="octicon octicon-pencil"></i> Edit' : '<i class="octicon octicon-eye"></i> Preview';
+        }
+
+        // --- 8. SAVE, LOAD, & SEND ---
+        function saveConfig() {
+            let filename = prompt("Enter a name for your config file:", "fluxer_config");
+            if (filename === null || filename.trim() === "") return;
+            if (!filename.endsWith(".json")) filename += ".json";
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            const a = document.createElement('a');
+            a.href = dataStr;
+            a.download = filename;
+            a.click();
+        }
+
+        function loadConfig(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const loaded = JSON.parse(e.target.result);
+                    appState = loaded;
+                    if (!appState.messageId) appState.messageId = "";
+                    if (!appState.embeds) appState.embeds = [];
+                    renderEditor();
+                    alert("Config loaded successfully!");
+                } catch (err) {
+                    alert("Invalid JSON file! Make sure it's a valid Fluxer config.");
+                }
+            };
+            reader.onerror = () => {
+                alert("Error reading file. Please try again.");
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        }
+
+        async function sendWebhook() {
+            if (!appState.webhookUrl) { alert("Please enter a Webhook URL!"); return; }
+            const btn = document.getElementById('sendBtn');
+            const isEdit = appState.messageId && appState.messageId.trim() !== "";
+            const targetUrl = isEdit ? `${appState.webhookUrl}/messages/${appState.messageId.trim()}` : appState.webhookUrl;
+            const fetchMethod = isEdit ? "PATCH" : "POST";
+            const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(targetUrl);
+
+            btn.innerText = isEdit ? "Editing Message..." : "Sending...";
+
+            const payload = {
+                username: appState.username || undefined, avatar_url: appState.avatar || undefined, content: appState.content || undefined, embeds: []
+            };
+
+            appState.embeds.forEach(e => {
+                if (!e.authorName && !e.title && !e.description && e.fields.length === 0 && !e.imageUrl && !e.thumbnailUrl && !e.footerText) return;
+
+                let formattedEmbed = {
+                    title: e.title || undefined, url: e.url || undefined, description: e.description || undefined, color: parseInt(e.color.replace('#', ''), 16), fields: []
+                };
+
+                if (e.authorName) {
+                    formattedEmbed.author = { name: e.authorName };
+                    if (e.authorUrl) formattedEmbed.author.url = e.authorUrl;
+                    if (e.authorIcon) formattedEmbed.author.icon_url = e.authorIcon;
+                }
+
+                if (e.imageUrl) formattedEmbed.image = { url: e.imageUrl };
+                if (e.thumbnailUrl) formattedEmbed.thumbnail = { url: e.thumbnailUrl };
+                if (e.footerText || e.footerIcon) {
+                    formattedEmbed.footer = {};
+                    if (e.footerText) formattedEmbed.footer.text = e.footerText;
+                    if (e.footerIcon) formattedEmbed.footer.icon_url = e.footerIcon;
+                }
+
+                e.fields.forEach(f => {
+                    if (f.name || f.value) formattedEmbed.fields.push({ name: f.name || '\u200B', value: f.value || '\u200B', inline: f.inline });
+                });
+                payload.embeds.push(formattedEmbed);
+            });
+
+            try {
+                const res = await fetch(proxyUrl, { method: fetchMethod, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                if (res.ok) btn.innerText = isEdit ? "Edited Successfully!" : "Sent Successfully!";
+                else { alert("Error: " + await res.text()); btn.innerText = "Error (Check URL/ID)"; }
+            } catch (err) { alert("Network Error. Check console."); btn.innerText = "Failed"; }
+
+            setTimeout(() => { btn.innerText = "Send Message"; }, 2500);
+        }
+
+        function toggleSendButton() { document.getElementById('sendBtn').disabled = !document.getElementById('forgiveCheckbox').checked; }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEditor();
+            initColorWheel(); // Generates the wheel visually exactly once
+            try {
+                document.getElementById('staticMathPreview').innerHTML = katex.renderToString("\\int_0^\\infty e^{-x} dx", { displayMode: true });
+            } catch (e) { }
+        });
+    </script>
+</body>
+
+</html>
