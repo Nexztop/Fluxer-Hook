@@ -1864,7 +1864,6 @@
             return match ? match[0] : input.trim();
         }
 
-        // REMOVED corsproxy.io FROM FETCH
         async function fetchExistingMessage() {
             if (!appState.webhookUrl || !appState.messageId) {
                 alert("Please enter both your Webhook URL and the Message ID/Link first.");
@@ -1876,9 +1875,11 @@
             appState.messageId = cleanId;
 
             const targetUrl = `${appState.webhookUrl}/messages/${cleanId}`;
+            // Use your brand new personal Cloudflare Worker proxy!
+            const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/?url=" + encodeURIComponent(targetUrl);
 
             try {
-                const res = await fetch("https://fluxer-proxy.pazanderson420.workers.dev/" + targetUrl);
+                const res = await fetch(proxyUrl);
                 if (!res.ok) throw new Error("Network response was not ok");
                 const data = await res.json();
 
@@ -1950,7 +1951,6 @@
             event.target.value = "";
         }
 
-        // REMOVED corsproxy.io FROM SEND
         async function sendWebhook() {
             if (!appState.webhookUrl) { alert("Please enter a Webhook URL!"); return; }
             const btn = document.getElementById('sendBtn');
@@ -1959,6 +1959,8 @@
 
             const targetUrl = isEdit ? `${appState.webhookUrl}/messages/${cleanId}` : appState.webhookUrl;
             const fetchMethod = isEdit ? "PATCH" : "POST";
+            // Use your brand new personal Cloudflare Worker proxy!
+            const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/?url=" + encodeURIComponent(targetUrl);
 
             btn.innerText = isEdit ? "Editing Message..." : "Sending...";
 
@@ -1994,7 +1996,7 @@
             });
 
             try {
-                const res = await fetch(targetUrl, { method: fetchMethod, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                const res = await fetch(proxyUrl, { method: fetchMethod, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 if (res.ok) btn.innerText = isEdit ? "Edited Successfully!" : "Sent Successfully!";
                 else { alert("Error: " + await res.text()); btn.innerText = "Error (Check URL/ID)"; }
             } catch (err) { alert("Network Error. Check console."); btn.innerText = "Failed"; }
@@ -2015,4 +2017,3 @@
 </body>
 
 </html>
-
