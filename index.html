@@ -1305,18 +1305,9 @@
                 <input type="password" id="webhookUrl" placeholder="https://fluxer.app/api/webhooks/..."
                     oninput="updateState('webhookUrl', this.value)" />
 
-                <div style="display: flex; gap: 10px; margin-top: 10px; align-items: flex-end;">
-                    <div style="flex: 1;">
-                        <label>Message ID or Link (Optional: To Edit)</label>
-                        <input type="text" id="messageId" placeholder="123456789... or https://..."
-                            oninput="updateState('messageId', this.value)" />
-                    </div>
-                    <button class="btn-secondary"
-                        style="width: auto; height: 42px; padding: 0 16px; margin: 0; justify-content: center;"
-                        onclick="fetchExistingMessage()" title="Load existing message into the editor">
-                        Fetch Message
-                    </button>
-                </div>
+                <label style="margin-top: 10px;">Message ID or Link (Optional: To Edit)</label>
+                <input type="text" id="messageId" placeholder="Leave blank to send new message. Enter ID/Link to edit."
+                    oninput="updateState('messageId', this.value)" />
             </div>
 
             <div class="glass-card row-inputs">
@@ -1864,56 +1855,9 @@
             return match ? match[0] : input.trim();
         }
 
-        async function fetchExistingMessage() {
-            if (!appState.webhookUrl || !appState.messageId) {
-                alert("Please enter both your Webhook URL and the Message ID/Link first.");
-                return;
-            }
-
-            const cleanId = extractMessageId(appState.messageId);
-            document.getElementById('messageId').value = cleanId;
-            appState.messageId = cleanId;
-
-            const targetUrl = `${appState.webhookUrl}/messages/${cleanId}`;
-            // Use your brand new personal Cloudflare Worker proxy!
-            const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/?url=" + encodeURIComponent(targetUrl);
-
-            try {
-                const res = await fetch(proxyUrl);
-                if (!res.ok) throw new Error("Network response was not ok");
-                const data = await res.json();
-
-                appState.content = data.content || "";
-                appState.username = data.author?.username || "Fluxer System";
-                appState.avatar = data.avatar_url || "";
-
-                appState.embeds = [];
-                if (data.embeds && data.embeds.length > 0) {
-                    data.embeds.forEach(e => {
-                        let parsedEmbed = {
-                            authorName: e.author?.name || "", authorUrl: e.author?.url || "", authorIcon: e.author?.icon_url || "",
-                            title: e.title || "", url: e.url || "", description: e.description || "",
-                            color: e.color ? "#" + e.color.toString(16).padStart(6, '0') : "#5865F2",
-                            imageUrl: e.image?.url || "", thumbnailUrl: e.thumbnail?.url || "",
-                            footerText: e.footer?.text || "", footerIcon: e.footer?.icon_url || "",
-                            fields: []
-                        };
-                        if (e.fields) {
-                            e.fields.forEach(f => {
-                                parsedEmbed.fields.push({ name: f.name, value: f.value, inline: f.inline || false });
-                            });
-                        }
-                        appState.embeds.push(parsedEmbed);
-                    });
-                } else {
-                    appState.embeds = [{ authorName: "", authorUrl: "", authorIcon: "", title: "", url: "", description: "", color: "#5865F2", imageUrl: "", thumbnailUrl: "", footerText: "", footerIcon: "", fields: [] }];
-                }
-
-                renderEditor();
-                alert("Message loaded successfully!");
-            } catch (err) {
-                alert("Failed to load message. Ensure your Webhook URL and Message ID are correct.");
-            }
+        function getCleanWebhookUrl() {
+            if (!appState.webhookUrl) return "";
+            return appState.webhookUrl.trim().replace(/\/$/, "");
         }
 
         function saveConfig() {
@@ -1957,9 +1901,10 @@
             const cleanId = extractMessageId(appState.messageId || "");
             const isEdit = cleanId !== "";
 
-            const targetUrl = isEdit ? `${appState.webhookUrl}/messages/${cleanId}` : appState.webhookUrl;
+            const cleanWebhookUrl = getCleanWebhookUrl();
+            const targetUrl = isEdit ? `${cleanWebhookUrl}/messages/${cleanId}` : cleanWebhookUrl;
             const fetchMethod = isEdit ? "PATCH" : "POST";
-            // Use your brand new personal Cloudflare Worker proxy!
+
             const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/?url=" + encodeURIComponent(targetUrl);
 
             btn.innerText = isEdit ? "Editing Message..." : "Sending...";
