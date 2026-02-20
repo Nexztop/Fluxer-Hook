@@ -1878,7 +1878,7 @@
             const targetUrl = `${appState.webhookUrl}/messages/${cleanId}`;
 
             try {
-                const res = await fetch(targetUrl);
+                const res = await fetch("https://fluxer-proxy.pazanderson420.workers.dev/" + targetUrl);
                 if (!res.ok) throw new Error("Network response was not ok");
                 const data = await res.json();
 
@@ -2015,3 +2015,4 @@
 </body>
 
 </html>
+
