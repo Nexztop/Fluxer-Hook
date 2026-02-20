@@ -1304,10 +1304,6 @@
                 <label>Connection (Webhook URL)</label>
                 <input type="password" id="webhookUrl" placeholder="https://fluxer.app/api/webhooks/..."
                     oninput="updateState('webhookUrl', this.value)" />
-
-                <label style="margin-top: 10px;">Message ID or Link (Optional: To Edit)</label>
-                <input type="text" id="messageId" placeholder="Leave blank to send new message. Enter ID/Link to edit."
-                    oninput="updateState('messageId', this.value)" />
             </div>
 
             <div class="glass-card row-inputs">
@@ -1368,7 +1364,7 @@
     <script>
         // --- 1. STATE MANAGEMENT ---
         let appState = {
-            webhookUrl: "", messageId: "", username: "Fluxer System", avatar: "", content: "",
+            webhookUrl: "", username: "Fluxer System", avatar: "", content: "",
             embeds: [{
                 authorName: "", authorUrl: "", authorIcon: "",
                 title: "", url: "", description: "", color: "#5865F2",
@@ -1385,7 +1381,7 @@
             modalClickTarget = e.target;
         }
         function handleModalMouseUp(e, modalId) {
-            if (e.target.id === modalId && modalClickTarget.id === modalId) {
+            if (e.target.id === modalId && modalClickTarget === e.target) {
                 document.getElementById(modalId).style.display = 'none';
             }
         }
@@ -1612,7 +1608,6 @@
         // --- 4. EDITOR UI GENERATION ---
         function renderEditor() {
             document.getElementById('webhookUrl').value = appState.webhookUrl || "";
-            document.getElementById('messageId').value = appState.messageId || "";
             document.getElementById('username').value = appState.username || "";
             document.getElementById('avatar').value = appState.avatar || "";
             document.getElementById('content').value = appState.content || "";
@@ -1849,12 +1844,6 @@
 
         // --- 8. API & FILE UTILS ---
 
-        function extractMessageId(input) {
-            if (!input) return "";
-            const match = input.match(/\d+$/);
-            return match ? match[0] : input.trim();
-        }
-
         function getCleanWebhookUrl() {
             if (!appState.webhookUrl) return "";
             return appState.webhookUrl.trim().replace(/\/$/, "");
@@ -1880,7 +1869,6 @@
                 try {
                     const loaded = JSON.parse(e.target.result);
                     appState = loaded;
-                    if (!appState.messageId) appState.messageId = "";
                     if (!appState.embeds) appState.embeds = [];
                     renderEditor();
                     alert("Config loaded successfully!");
@@ -1898,16 +1886,14 @@
         async function sendWebhook() {
             if (!appState.webhookUrl) { alert("Please enter a Webhook URL!"); return; }
             const btn = document.getElementById('sendBtn');
-            const cleanId = extractMessageId(appState.messageId || "");
-            const isEdit = cleanId !== "";
 
             const cleanWebhookUrl = getCleanWebhookUrl();
-            const targetUrl = isEdit ? `${cleanWebhookUrl}/messages/${cleanId}` : cleanWebhookUrl;
-            const fetchMethod = isEdit ? "PATCH" : "POST";
+            const targetUrl = cleanWebhookUrl;
+            const fetchMethod = "POST";
 
             const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/?url=" + encodeURIComponent(targetUrl);
 
-            btn.innerText = isEdit ? "Editing Message..." : "Sending...";
+            btn.innerText = "Sending...";
 
             const payload = {
                 username: appState.username || undefined, avatar_url: appState.avatar || undefined, content: appState.content || undefined, embeds: []
@@ -1942,8 +1928,8 @@
 
             try {
                 const res = await fetch(proxyUrl, { method: fetchMethod, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-                if (res.ok) btn.innerText = isEdit ? "Edited Successfully!" : "Sent Successfully!";
-                else { alert("Error: " + await res.text()); btn.innerText = "Error (Check URL/ID)"; }
+                if (res.ok) btn.innerText = "Sent Successfully!";
+                else { alert("Error: " + await res.text()); btn.innerText = "Error (Check URL)"; }
             } catch (err) { alert("Network Error. Check console."); btn.innerText = "Failed"; }
 
             setTimeout(() => { btn.innerText = "Send Message"; }, 2500);
