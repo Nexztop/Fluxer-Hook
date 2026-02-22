@@ -5,9 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fluxer Webhook Studio Pro</title>
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fluxerstatic.com; img-src * data: blob:; font-src *; connect-src *;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <link rel="icon" href="data:,">
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/build.css">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -1101,6 +1105,157 @@
                 flex-direction: column;
             }
         }
+
+        /* --- FLOATING DELETE BUTTON --- */
+        .fab-delete-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .fab-delete-toggle {
+            background: rgba(242, 63, 66, 0.15);
+            color: #F23F42;
+            border: 1px solid rgba(242, 63, 66, 0.3);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(242, 63, 66, 0.2);
+            font-size: 16px;
+            margin-right: 10px;
+            z-index: 10;
+            transition: 0.2s;
+        }
+
+        .fab-delete-toggle:hover {
+            background: rgba(242, 63, 66, 0.3);
+            transform: scale(1.05);
+        }
+
+        .fab-delete-btn {
+            background: #F23F42;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(242, 63, 66, 0.3);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .fab-delete-btn:hover {
+            background: #D83A3D;
+        }
+
+        .fab-delete-container.hidden .fab-delete-btn {
+            transform: translateX(-20px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- TOP BAR BUTTONS --- */
+        .top-btn {
+            background: rgba(43, 45, 49, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.4);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.1s;
+            min-width: 80px;
+        }
+
+        .top-btn:hover {
+            background: rgba(64, 66, 73, 0.8);
+        }
+
+        .top-btn-icon {
+            font-size: 18px;
+        }
+
+        /* --- BACKUPS MODAL --- */
+        .backup-warning {
+            background: rgba(240, 177, 50, 0.1);
+            border-left: 4px solid #F0B132;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .backup-warning p {
+            margin: 0 0 10px 0;
+            color: #ddd;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .backup-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 12px 16px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .backup-item-title {
+            font-weight: bold;
+            font-size: 15px;
+            color: white;
+        }
+
+        .backup-item-date {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .backup-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .empty-backups {
+            text-align: center;
+            color: #888;
+            padding: 20px 0;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        #backupsList {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
@@ -1113,12 +1268,40 @@
     <div class="modal-overlay" id="entryModal" style="display: flex;">
         <div class="modal-box">
             <h2>Welcome to the Studio</h2>
-            <p>Heads up! This is a 100% unofficial tool. It has absolutely no affiliation with Fluxer. 
-                It's simply a personal project created to help us design better webhooks. 
+            <p>Heads up! This is a 100% unofficial tool. It has absolutely no affiliation with Fluxer.
+                It's simply a personal project created to help us design better webhooks.
                 <br><br>For more resources, visit <a href="https://fluxer.app"
                     style="color: #00A8FC; text-decoration: none;">fluxer.app</a>.
             </p>
             <button class="btn-primary" onclick="closeEntryModal()">I Understand, Let's Build</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="saveModal" onmousedown="handleModalMouseDown(event)"
+        onmouseup="handleModalMouseUp(event, 'saveModal')">
+        <div class="modal-box" style="width: 400px; padding: 30px;">
+            <div class="modal-header"
+                style="padding: 0 0 15px 0; background: transparent; border-bottom: none; position: relative;">
+                <h2 style="margin:0; font-size:18px;">Save Configuration</h2>
+                <button class="close-btn" onclick="document.getElementById('saveModal').style.display='none'">×</button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div style="margin-bottom: 20px;">
+                    <label>File Name</label>
+                    <input type="text" id="saveFileName" value="fluxer_config" />
+                </div>
+                <div class="glass-card" style="margin-bottom: 20px;">
+                    <label class="checkbox-wrapper" style="align-items: center; margin-bottom: 0;">
+                        <input type="checkbox" id="includeWebhookCheckbox">
+                        <span style="font-size: 13px; font-weight: 500;">Include secret Webhook URL</span>
+                    </label>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px; margin-left: 26px; line-height: 1.4;">
+                        Warning: If you share this config with others, they will be able to post messages via your
+                        webhook!
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="executeSaveConfig()">Save File</button>
+            </div>
         </div>
     </div>
 
@@ -1277,6 +1460,64 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="backupsModal" onmousedown="handleModalMouseDown(event)"
+        onmouseup="handleModalMouseUp(event, 'backupsModal')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 style="margin:0; font-size:18px;">Backups & Storage</h2>
+                <button class="close-btn"
+                    onclick="document.getElementById('backupsModal').style.display='none'">×</button>
+            </div>
+            <div class="modal-body">
+
+                <div class="backup-warning" id="persistWarning">
+                    <h3
+                        style="margin:0 0 5px 0; color:#F0B132; font-size:15px; display:flex; gap:6px; align-items:center;">
+                        <i class="octicon octicon-alert"></i> Warning
+                    </h3>
+                    <p>Your browser did not grant permission to use persistent storage for this site. I just wanted
+                        something easy to use.</p>
+                    <button class="btn-primary" style="padding: 10px 15px; width: auto; font-size: 13px;"
+                        onclick="requestStoragePersistence()">Request Permission</button>
+                    <button class="btn-secondary"
+                        style="margin-top: 0; padding: 10px 15px; width: auto; display: inline-block; text-align: center;"
+                        onclick="document.getElementById('persistWarning').style.display='none'">Dismiss</button>
+                </div>
+
+                <div id="backupsList">
+                </div>
+
+                <div
+                    style="display: flex; gap: 10px; justify-content: space-between; border-top: 1px solid var(--glass-border); padding-top: 20px;">
+                    <button class="btn-secondary" style="width: auto; text-align: center; display: inline-block;"
+                        onclick="loadDefaultTemplate()">Load Blank Template</button>
+                    <button class="btn-danger"
+                        style="margin: 0; padding: 10px 16px; font-size: 13px; font-weight: bold;"
+                        onclick="clearAllWorkspace()">Clear Entire Workspace</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="saveBackupModal" style="z-index: 1001;" onmousedown="handleModalMouseDown(event)"
+        onmouseup="handleModalMouseUp(event, 'saveBackupModal')">
+        <div class="modal-box" style="width: 400px; padding: 30px;">
+            <div class="modal-header"
+                style="padding: 0 0 15px 0; background: transparent; border-bottom: none; position: relative;">
+                <h2 style="margin:0; font-size:18px;">Create Backup</h2>
+                <button class="close-btn"
+                    onclick="document.getElementById('saveBackupModal').style.display='none'">×</button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div style="margin-bottom: 20px;">
+                    <label>Save Name</label>
+                    <input type="text" id="backupNameInput" placeholder="My Awesome Layout..." />
+                </div>
+                <button class="btn-primary" onclick="confirmSaveBackup()">Save to Browser Storage</button>
+            </div>
+        </div>
+    </div>
+
     <div class="app-layout">
         <div class="editor-zone" id="editorZone">
             <div class="top-header">
@@ -1288,17 +1529,38 @@
                         <div class="subtitle">Embeds done easy</div>
                     </div>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn-icon" onclick="document.getElementById('fileInput').click()"
-                        title="Load Config">📂 Load</button>
-                    <button class="btn-icon" onclick="saveConfig()" title="Save Config">💾 Save</button>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="top-btn" onclick="openBackupsModal()" title="Manage Backups and Saves">
+                        <span class="top-btn-icon">🕑</span>
+                        <span>Backups</span>
+                    </button>
+                    <div style="width: 1px; height: 35px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>
+                    <button class="top-btn" onclick="document.getElementById('fileInput').click()"
+                        title="Load Config File">
+                        <span class="top-btn-icon">📂</span>
+                        <span>Load</span>
+                    </button>
+                    <button class="top-btn" onclick="saveConfig()" title="Export Config File">
+                        <span class="top-btn-icon">💾</span>
+                        <span>Save</span>
+                    </button>
+                    <div style="display: none;">
+                        <button class="btn-icon" onclick="document.getElementById('fileInput').click()"
+                            title="Load Config File">📥 Load</button>
+                        <button class="btn-icon" onclick="saveConfig()" title="Export Config File">💾 Save</button>
+                    </div>
                     <input type="file" id="fileInput" accept=".json" style="display: none;"
                         onchange="loadConfig(event)">
                 </div>
             </div>
 
-            <button class="btn-secondary" onclick="toggleModal()"><span><i class="octicon octicon-book"></i> Open
-                    Markdown & LaTeX Guide</span></button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-secondary" onclick="toggleModal()" style="flex: 1; justify-content: center;"><span>📝
+                        Markdown Guide</span></button>
+                <button class="btn-secondary" onclick="promptSaveBackup()"
+                    style="flex: 1; justify-content: center; background: rgba(58, 130, 247, 0.1); border-color: rgba(58, 130, 247, 0.3); color: white;"><span><i
+                            class="octicon octicon-cloud-upload"></i> Save to Backups</span></button>
+            </div>
 
             <div class="glass-card">
                 <label>Connection (Webhook URL)</label>
@@ -1343,6 +1605,15 @@
             <button class="btn-primary" id="sendBtn" onclick="sendWebhook()" disabled>Send Message</button>
         </div>
 
+        <div class="fab-delete-container hidden" id="fabDeleteContainer">
+            <div class="fab-delete-toggle" onclick="toggleFabDelete()">
+                <div id="fabDeleteIcon">🗑️</div>
+            </div>
+            <button class="fab-delete-btn" onclick="clearAllWorkspace()">
+                🗑️ Delete All
+            </button>
+        </div>
+
         <div class="preview-zone">
             <div class="fluxer-mock-window">
                 <div class="f-msg">
@@ -1362,17 +1633,168 @@
     </div>
 
     <script>
-        // --- 1. STATE MANAGEMENT ---
-        let appState = {
-            webhookUrl: "", username: "Fluxer System", avatar: "", content: "",
+        // --- 0. DEFAULT TEMPLATE DEFINITION ---
+        const DEFAULT_TEMPLATE = {
+            webhookUrl: "", username: "Fluxer System", avatar: "https://fluxerstatic.com/marketing/branding/symbol-white.svg",
+            content: "Welcome to Fluxer Webhook Studio Pro! \n\n> [!TIP]\n> This is a default template to show off basic markdown capabilities. Use the `Backups` button above to load your saved configurations or start from an entirely blank slate!",
             embeds: [{
-                authorName: "", authorUrl: "", authorIcon: "",
-                title: "", url: "", description: "", color: "#5865F2",
-                imageUrl: "", thumbnailUrl: "", footerText: "", footerIcon: "", fields: []
+                authorName: "Studio Guided Template", authorUrl: "", authorIcon: "",
+                title: "Example Embed Layout", url: "", description: "This is a great place to start your webhook design. You can modify colors, add fields, or inject > [!NOTE]\n> custom admonitions inside descriptions.", color: "#5865F2",
+                imageUrl: "", thumbnailUrl: "", footerText: "Made with Fluxer Studio Pro", footerIcon: "", fields: []
             }]
         };
 
-        // --- 2. MODAL & KEYBOARD LOGIC ---
+        // --- 1. STATE & STORAGE MANAGEMENT ---
+        let appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+        let backupsData = {};
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('fluxer_autosave', JSON.stringify(appState));
+                localStorage.setItem('fluxer_backups', JSON.stringify(backupsData));
+            } catch (e) { }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                // Load autosave
+                const saved = localStorage.getItem('fluxer_autosave');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && Array.isArray(parsed.embeds)) appState = parsed;
+                } else {
+                    appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+                }
+
+                // Load backups dict
+                const bStorage = localStorage.getItem('fluxer_backups');
+                if (bStorage) {
+                    backupsData = JSON.parse(bStorage);
+                }
+            } catch (e) { }
+        }
+
+        // --- 1.5 PERSISTENT STORAGE PERMISSION ---
+        async function checkStoragePersistence() {
+            if (navigator.storage && navigator.storage.persist) {
+                const isPersisted = await navigator.storage.persisted();
+                if (!isPersisted) {
+                    document.getElementById('persistWarning').style.display = 'block';
+                } else {
+                    document.getElementById('persistWarning').style.display = 'none';
+                }
+            }
+        }
+
+        async function requestStoragePersistence() {
+            if (navigator.storage && navigator.storage.persist) {
+                const isPersisted = await navigator.storage.persist();
+                if (isPersisted) {
+                    alert("Awesome! Persistent storage granted. Your browser won't delete these backups to save space.");
+                    document.getElementById('persistWarning').style.display = 'none';
+                } else {
+                    alert("Permission denied or not supported by this browser. Your data is saved, but may be cleared by your browser over time.");
+                }
+            } else {
+                alert("Persistent Storage Manager is not supported in this browser.");
+            }
+        }
+
+        // --- 2. BACKUPS UI LOGIC ---
+        function openBackupsModal() {
+            checkStoragePersistence();
+            renderBackupsList();
+            document.getElementById('backupsModal').style.display = 'flex';
+        }
+
+        function renderBackupsList() {
+            const listDiv = document.getElementById('backupsList');
+            listDiv.innerHTML = '';
+
+            const backupKeys = Object.keys(backupsData);
+            if (backupKeys.length === 0) {
+                listDiv.innerHTML = '<div class="empty-backups">No cloud saves or backups found. Click "Save to Backups" in the editor to create one!</div>';
+                return;
+            }
+
+            // Sort by latest added (we don't strictly track dates yet, so we'll just reverse object keys as a proxy)
+            backupKeys.reverse().forEach(key => {
+                const item = backupsData[key];
+                const dateStr = item._savedAt ? new Date(item._savedAt).toLocaleString() : 'Unknown Date';
+
+                listDiv.innerHTML += `
+                    <div class="backup-item">
+                        <div>
+                            <div class="backup-item-title">${key}</div>
+                            <div class="backup-item-date">${dateStr}</div>
+                        </div>
+                        <div class="backup-item-actions">
+                            <button class="btn-secondary" style="margin:0; padding: 6px 12px; font-size: 11px;" onclick="loadBackup('${key}')">Load</button>
+                            <button class="btn-danger" style="margin:0; padding: 6px 12px; font-size: 11px;" onclick="deleteBackup('${key}')">🗑️ Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function promptSaveBackup() {
+            document.getElementById('backupNameInput').value = '';
+            document.getElementById('saveBackupModal').style.display = 'flex';
+        }
+
+        function confirmSaveBackup() {
+            const name = document.getElementById('backupNameInput').value.trim();
+            if (!name) { alert("Please enter a name for the backup!"); return; }
+
+            let backupState = JSON.parse(JSON.stringify(appState));
+            backupState._savedAt = Date.now();
+
+            backupsData[name] = backupState;
+            saveToLocalStorage();
+
+            document.getElementById('saveBackupModal').style.display = 'none';
+            alert(`Saved as "${name}" successfully in Backups!`);
+        }
+
+        function loadBackup(name) {
+            if (confirm(`Are you sure you want to load "${name}"? This will overwrite your current active editor view.`)) {
+                appState = JSON.parse(JSON.stringify(backupsData[name]));
+                renderEditor();
+                document.getElementById('backupsModal').style.display = 'none';
+                saveToLocalStorage();
+            }
+        }
+
+        function deleteBackup(name) {
+            if (confirm(`Are you sure you want to permanently delete backup "${name}"?`)) {
+                delete backupsData[name];
+                saveToLocalStorage();
+                renderBackupsList();
+            }
+        }
+
+        function clearAllWorkspace() {
+            if (confirm("Are you absolutely sure you want to completely clear the editor? This gives you a blank slate. Unsaved changes will be lost.")) {
+                appState = {
+                    webhookUrl: "", username: "", avatar: "", content: "",
+                    embeds: []
+                };
+                renderEditor();
+                document.getElementById('backupsModal').style.display = 'none';
+                saveToLocalStorage();
+            }
+        }
+
+        function loadDefaultTemplate() {
+            if (confirm("Are you sure you want to load the default template? Your current editor view will be overwritten.")) {
+                appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+                renderEditor();
+                document.getElementById('backupsModal').style.display = 'none';
+                saveToLocalStorage();
+            }
+        }
+
+        // --- 3. MODAL & KEYBOARD LOGIC ---
         function closeEntryModal() { document.getElementById('entryModal').style.display = 'none'; }
         function toggleModal() { const m = document.getElementById('guideModal'); m.style.display = (m.style.display === 'flex') ? 'none' : 'flex'; }
 
@@ -1769,7 +2191,9 @@
             if (appState.avatar) avDiv.style.backgroundImage = `url('${appState.avatar}')`;
             else { avDiv.style.backgroundImage = 'none'; avDiv.style.backgroundColor = '#5865F2'; }
 
-            document.getElementById('prevContent').innerHTML = parseFluxerMarkdown(appState.content);
+            let parsedContent = parseFluxerMarkdown(appState.content);
+            if (typeof DOMPurify !== 'undefined') parsedContent = DOMPurify.sanitize(parsedContent);
+            document.getElementById('prevContent').innerHTML = parsedContent;
 
             const previewContainer = document.getElementById('prevEmbedsContainer');
             previewContainer.innerHTML = "";
@@ -1781,7 +2205,7 @@
                 if (embed.authorName) {
                     let aIcon = embed.authorIcon ? `<img src="${embed.authorIcon}" class="fe-author-icon" onerror="this.style.display='none'">` : '';
                     let aName = embed.authorUrl
-                        ? `<a href="${embed.authorUrl}" target="_blank" class="fe-author-name">${embed.authorName}</a>`
+                        ? `<a href="${embed.authorUrl}" target="_blank" rel="noopener noreferrer" class="fe-author-name">${embed.authorName}</a>`
                         : `<span class="fe-author-name">${embed.authorName}</span>`;
                     authorHtml = `<div class="fe-author">${aIcon}${aName}</div>`;
                 }
@@ -1789,7 +2213,7 @@
                 let titleHtml = "";
                 if (embed.title) {
                     titleHtml = embed.url
-                        ? `<a href="${embed.url}" target="_blank" class="fe-title">${embed.title}</a>`
+                        ? `<a href="${embed.url}" target="_blank" rel="noopener noreferrer" class="fe-title">${embed.title}</a>`
                         : `<div class="fe-title">${embed.title}</div>`;
                 }
 
@@ -1818,7 +2242,7 @@
                     fieldsHtml += `</div>`;
                 }
 
-                previewContainer.innerHTML += `
+                let embedBlockHtml = `
                     <div class="f-embed" style="border-left-color: ${embed.color};">
                         <div class="fe-content-wrapper">
                             <div class="fe-main-content">
@@ -1833,7 +2257,16 @@
                         ${footerHtml}
                     </div>
                 `;
+
+                if (typeof DOMPurify !== 'undefined') {
+                    // Sanitize the assembled HTML, allowing image/link tags but blocking scripts
+                    embedBlockHtml = DOMPurify.sanitize(embedBlockHtml, { ADD_ATTR: ['target', 'rel'] });
+                }
+
+                previewContainer.innerHTML += embedBlockHtml;
             });
+
+            saveToLocalStorage(); // Auto-save whenever preview updates
         }
 
         // --- 7. MOBILE VIEW TOGGLE ---
@@ -1850,15 +2283,29 @@
         }
 
         function saveConfig() {
-            let filename = prompt("Enter a name for your config file:", "fluxer_config");
-            if (filename === null || filename.trim() === "") return;
+            document.getElementById('saveFileName').value = "fluxer_config";
+            document.getElementById('includeWebhookCheckbox').checked = false;
+            document.getElementById('saveModal').style.display = 'flex';
+        }
+
+        function executeSaveConfig() {
+            let filename = document.getElementById('saveFileName').value.trim();
+            if (filename === "") filename = "fluxer_config";
             if (!filename.endsWith(".json")) filename += ".json";
 
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+            let exportData = JSON.parse(JSON.stringify(appState));
+
+            if (!document.getElementById('includeWebhookCheckbox').checked) {
+                exportData.webhookUrl = "";
+            }
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
             const a = document.createElement('a');
             a.href = dataStr;
             a.download = filename;
             a.click();
+
+            document.getElementById('saveModal').style.display = 'none';
         }
 
         function loadConfig(event) {
@@ -1891,7 +2338,8 @@
             const targetUrl = cleanWebhookUrl;
             const fetchMethod = "POST";
 
-            const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/?url=" + encodeURIComponent(targetUrl);
+            // SECURE METHOD: proxy URL doesn't contain the webhook URL in query parameters!
+            const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/";
 
             btn.innerText = "Sending...";
 
@@ -1927,7 +2375,14 @@
             });
 
             try {
-                const res = await fetch(proxyUrl, { method: fetchMethod, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                const res = await fetch(proxyUrl, {
+                    method: fetchMethod,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Target-Url": targetUrl // Pass sensitive URL in a Header instead of query parameter
+                    },
+                    body: JSON.stringify(payload)
+                });
                 if (res.ok) btn.innerText = "Sent Successfully!";
                 else { alert("Error: " + await res.text()); btn.innerText = "Error (Check URL)"; }
             } catch (err) { alert("Network Error. Check console."); btn.innerText = "Failed"; }
@@ -1938,15 +2393,24 @@
         function toggleSendButton() { document.getElementById('sendBtn').disabled = !document.getElementById('forgiveCheckbox').checked; }
 
         document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage(); // Initial load of persistent storage
             renderEditor();
             initColorWheel(); // Generates the wheel visually exactly once
             try {
                 document.getElementById('staticMathPreview').innerHTML = katex.renderToString("\\int_0^\\infty e^{-x} dx", { displayMode: true });
             } catch (e) { }
         });
+
+        // --- 8. FLOATING DELETE FIXES ---
+        function toggleFabDelete() {
+            const container = document.getElementById('fabDeleteContainer');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
     </script>
 </body>
 
 </html>
-
-
