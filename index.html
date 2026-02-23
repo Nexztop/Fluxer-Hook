@@ -19,6 +19,10 @@
 
     <style>
         /* Global Styles */
+        * {
+            box-sizing: border-box;
+        }
+
         :root {
             --bg-deep: #050505;
             --glass-panel: rgba(20, 20, 20, 0.85);
@@ -31,13 +35,37 @@
             --fluxer-link: #00AFF4;
         }
 
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 0;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+            background-clip: content-box;
+        }
+
         body {
             background-color: var(--bg-deep);
             color: white;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             height: 100vh;
-            display: flex;
+            width: 100vw;
+            display: block;
             overflow: hidden;
             position: relative;
         }
@@ -57,22 +85,24 @@
         .app-layout {
             display: flex;
             width: 100%;
-            height: 100%;
+            height: 100vh;
+            overflow: hidden;
             transition: transform 0.3s ease;
+            position: relative;
         }
 
         .editor-zone {
-            width: 550px;
-            min-width: 450px;
-            background: var(--glass-panel);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
+            width: 640px;
+            min-width: 500px;
+            background: rgba(10, 10, 10, 0.75);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
             border-right: 1px solid var(--glass-border);
-            padding: 30px;
+            padding: 40px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 24px;
             z-index: 10;
         }
 
@@ -103,11 +133,15 @@
             fill: white;
         }
 
-        h1 {
-            font-size: 22px;
-            font-weight: 600;
+        .header-brand h1 {
+            font-size: 26px;
+            font-weight: 800;
             margin: 0;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .subtitle {
@@ -133,12 +167,12 @@
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--glass-border);
             color: white;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 16px 20px;
+            border-radius: 20px;
             font-family: inherit;
             font-size: 14px;
             box-sizing: border-box;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         input:focus,
@@ -155,10 +189,16 @@
         }
 
         .glass-card {
-            background: var(--glass-card);
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--glass-border);
-            padding: 16px;
-            border-radius: 14px;
+            padding: 24px;
+            border-radius: 32px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:focus-within {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(58, 130, 247, 0.3);
         }
 
         .row-inputs {
@@ -235,16 +275,18 @@
 
         /* Buttons */
         .btn-primary {
-            background: white;
-            color: black;
+            background: #fff;
+            color: #000;
             border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 600;
+            padding: 20px;
+            border-radius: 99px;
+            font-weight: 700;
+            font-size: 16px;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
-            transition: opacity 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
         }
 
         .btn-primary:disabled {
@@ -259,19 +301,20 @@
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
             color: white;
             border: 1px solid var(--glass-border);
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 500;
-            font-size: 13px;
+            padding: 14px 24px;
+            border-radius: 99px;
+            font-weight: 600;
+            font-size: 14px;
             cursor: pointer;
             width: 100%;
             text-align: left;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: all 0.3s;
         }
 
         .btn-secondary:hover {
@@ -279,35 +322,43 @@
         }
 
         .btn-icon {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
             color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 10px 18px;
+            border-radius: 99px;
             cursor: pointer;
-            font-size: 12px;
-            transition: 0.2s;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-danger {
+            background: rgba(242, 63, 66, 0.12);
+            color: #F23F42;
+            border: 1px solid rgba(242, 63, 66, 0.3);
+            padding: 14px 24px;
+            border-radius: 99px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-danger:hover {
+            background: rgba(242, 63, 66, 0.2);
+            border-color: #F23F42;
         }
 
         .btn-icon:hover {
             background: rgba(255, 255, 255, 0.2);
-        }
-
-        .btn-danger {
-            background: rgba(242, 63, 66, 0.2);
-            color: #F23F42;
-            border: 1px solid rgba(242, 63, 66, 0.4);
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
         /* Disclaimer */
@@ -338,18 +389,56 @@
 
         /* Preview Area */
         .preview-zone {
-            flex-grow: 1;
+            flex: 1;
+            height: 100vh;
             background-color: var(--fluxer-amoled);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 40px;
-            overflow-y: auto;
+            overflow: hidden;
+            position: relative;
+            box-sizing: border-box;
         }
 
         .fluxer-mock-window {
             width: 100%;
-            max-width: 650px;
+            max-width: 800px;
+            margin: 0;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .preview-zone::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(58, 130, 247, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            animation: pulseGlow 10s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        .fluxer-mock-window {
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+            display: block;
         }
 
         .f-msg {
@@ -495,7 +584,7 @@
             background: rgba(255, 255, 255, 0.05);
             padding: 8px 12px;
             margin: 5px 0;
-            border-radius: 0 4px 4px 0;
+            border-radius: 0 8px 8px 0;
             display: block;
         }
 
@@ -747,31 +836,33 @@
         }
 
         .modal-box {
-            background: var(--glass-panel);
+            background: rgba(10, 10, 10, 0.9);
             border: 1px solid var(--glass-border);
-            width: 650px;
+            width: 700px;
             max-width: 95%;
             max-height: 85vh;
             overflow-y: auto;
-            border-radius: 20px;
+            border-radius: 32px;
             padding: 0;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(58, 130, 247, 0.1);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
         }
 
         .modal-header {
-            padding: 20px 30px;
+            padding: 24px 40px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(15, 15, 15, 0.95);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: rgba(15, 15, 15, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             position: sticky;
             top: 0;
             z-index: 10;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
         }
 
         .modal-body {
@@ -844,7 +935,7 @@
             color: #fff;
             width: 45%;
             background: rgba(255, 255, 255, 0.03);
-            border-radius: 4px;
+            border-radius: 8px;
         }
 
         .g-note {
@@ -854,12 +945,13 @@
             margin: 10px 0;
             font-size: 13px;
             color: #ddd;
+            border-radius: 0 8px 8px 0;
         }
 
         .g-code {
             background: #000;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 12px;
             font-family: monospace;
             margin-top: 5px;
             border: 1px solid #222;
@@ -882,14 +974,16 @@
         /* Color Picker Modal */
         .cp-modal-box {
             width: 340px;
-            background: #1c1c1e;
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            background: rgba(15, 15, 15, 0.85);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
+            border-radius: 32px;
+            padding: 30px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(58, 130, 247, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
         }
 
         .cp-wheel-container {
@@ -982,8 +1076,8 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
-            padding: 8px 4px;
-            border-radius: 8px;
+            padding: 10px 4px;
+            border-radius: 99px;
             font-family: monospace;
             font-size: 13px;
             text-align: center;
@@ -1012,30 +1106,34 @@
         .cp-btn {
             flex: 1;
             padding: 14px;
-            border-radius: 14px;
-            font-weight: 600;
+            border-radius: 99px;
+            font-weight: 700;
             cursor: pointer;
             border: none;
             font-size: 15px;
-            transition: 0.15s;
+            transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .cp-btn-cancel {
-            background: #3a3a3c;
+            background: rgba(255, 255, 255, 0.05);
             color: white;
+            border: 1px solid var(--glass-border);
         }
 
         .cp-btn-cancel:hover {
-            background: #4a4a4c;
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .cp-btn-confirm {
             background: white;
             color: black;
+            border: none;
+            box-shadow: 0 8px 15px rgba(255, 255, 255, 0.1);
         }
 
         .cp-btn-confirm:hover {
-            background: #e0e0e0;
+            opacity: 0.9;
+            transform: translateY(-2px);
         }
 
         /* Mobile Styles */
@@ -1052,8 +1150,9 @@
                 width: 100%;
                 min-width: 100%;
                 height: 100vh;
-                padding: 20px 20px 110px 20px;
+                padding: 20px 16px 110px 16px;
                 box-sizing: border-box;
+                overflow-x: hidden;
             }
 
             .preview-zone {
@@ -1064,8 +1163,10 @@
                 top: 0;
                 left: 0;
                 z-index: 50;
-                padding: 20px;
+                padding: 20px 16px;
                 box-sizing: border-box;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
             body.show-preview .editor-zone {
@@ -1143,16 +1244,16 @@
             background: #F23F42;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 99px;
+            font-size: 14px;
+            font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(242, 63, 66, 0.3);
+            box-shadow: 0 4px 20px rgba(242, 63, 66, 0.5);
             transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 10px;
             white-space: nowrap;
             opacity: 1;
             transform: translateX(0);
@@ -1160,6 +1261,8 @@
 
         .fab-delete-btn:hover {
             background: #D83A3D;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(242, 63, 66, 0.6);
         }
 
         .fab-delete-container.hidden .fab-delete-btn {
@@ -1170,25 +1273,28 @@
 
         /* Top Bar Buttons */
         .top-btn {
-            background: rgba(43, 45, 49, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
             color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 99px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            transition: 0.1s;
-            min-width: 80px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 90px;
         }
 
         .top-btn:hover {
-            background: rgba(64, 66, 73, 0.8);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(58, 130, 247, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
         }
 
         .top-btn-icon {
@@ -1213,14 +1319,20 @@
         }
 
         .backup-item {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--glass-border);
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 20px 24px;
+            border-radius: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .backup-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(58, 130, 247, 0.2);
         }
 
         .backup-item-title {
@@ -1256,382 +1368,1445 @@
             background: rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
         }
+
+        /* Landing Page Base */
+        body.lp-scroll-mode {
+            overflow-y: auto !important;
+            height: auto !important;
+            scroll-behavior: smooth;
+        }
+
+        .landing-page {
+            display: block;
+            background-color: var(--bg-deep);
+            color: #fff;
+            font-family: 'Inter', -apple-system, sans-serif;
+            position: relative;
+            z-index: 100;
+        }
+
+        body.editor-mode .landing-page {
+            display: none;
+        }
+
+        body.editor-mode .editor-wrapper {
+            display: flex !important;
+            height: 100vh !important;
+            width: 100vw !important;
+            overflow: hidden !important;
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+        }
+
+        .editor-wrapper {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* Futuristic & Roundier Transitions */
+        .lp-fade-out {
+            opacity: 0;
+            transform: scale(1.02);
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        /* Nav */
+        .lp-nav {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1200px;
+            z-index: 900;
+            padding: 12px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .lp-nav.scrolled {
+            top: 0;
+            width: 100%;
+            border-radius: 0;
+            background: rgba(5, 5, 5, 0.95);
+            border-color: rgba(58, 130, 247, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .lp-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .lp-nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .lp-nav-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .lp-nav-link:hover {
+            color: #fff;
+        }
+
+        .lp-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .lp-nav-link:hover::after {
+            width: 100%;
+        }
+
+        .lp-nav-cta {
+            background: #fff;
+            color: #000;
+            padding: 10px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .lp-nav-cta:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Hero */
+        .lp-hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 160px 24px 100px;
+            box-sizing: border-box;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 30%, rgba(58, 130, 247, 0.08) 0%, transparent 60%);
+        }
+
+        .lp-spotlight {
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 1000px;
+            pointer-events: none;
+            z-index: 0;
+            animation: spotlightDrift 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes spotlightDrift {
+            0% {
+                opacity: 0.4;
+                transform: translateX(-50%) translateY(0) scale(1.0);
+            }
+
+            100% {
+                opacity: 0.7;
+                transform: translateX(-45%) translateY(50px) scale(1.1);
+            }
+        }
+
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .lp-hero-tag {
+            background: rgba(58, 130, 247, 0.1);
+            color: var(--accent);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 24px;
+            border: 1px solid rgba(58, 130, 247, 0.2);
+            text-transform: uppercase;
+            backdrop-filter: blur(5px);
+        }
+
+        .lp-hero h1 {
+            font-size: clamp(48px, 10vw, 96px);
+            font-weight: 800;
+            line-height: 0.95;
+            letter-spacing: -0.04em;
+            margin: 0 0 24px;
+            max-width: 900px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .lp-loop-wrapper {
+            display: inline-block;
+            height: 1.1em;
+            overflow: hidden;
+            vertical-align: bottom;
+            position: relative;
+            color: var(--accent);
+            padding-right: 4px;
+        }
+
+        .lp-loop-list li {
+            height: 1.1em;
+            line-height: 1.1em;
+            color: #fff;
+            display: flex;
+            align-items: center;
+        }
+
+
+
+        .lp-loop-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            animation: loopScroll 10s cubic-bezier(0.76, 0, 0.24, 1) infinite;
+        }
+
+        @keyframes loopScroll {
+
+            0%,
+            20% {
+                transform: translateY(0);
+            }
+
+            25%,
+            45% {
+                transform: translateY(-1.1em);
+            }
+
+            50%,
+            70% {
+                transform: translateY(-2.2em);
+            }
+
+            75%,
+            95% {
+                transform: translateY(-3.3em);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .lp-hero p {
+            font-size: 20px;
+            color: #888;
+            max-width: 600px;
+            margin: 0 0 48px;
+            line-height: 1.6;
+            z-index: 10;
+        }
+
+        .lp-hero-btns {
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .lp-btn-primary {
+            background: #fff;
+            color: #000;
+            padding: 18px 40px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
+
+        .lp-btn-primary:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(255, 255, 255, 0.3);
+        }
+
+        .lp-btn-outline {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            padding: 18px 40px;
+            border-radius: 40px;
+            border: 1px solid var(--glass-border);
+            font-weight: 700;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .lp-btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+            transform: translateY(-4px);
+        }
+
+        /* Editor Preview Window Mock */
+        .lp-editor-preview {
+            margin-top: 80px;
+            width: 90%;
+            max-width: 1000px;
+            aspect-ratio: 16 / 10;
+            background: #0a0a0a;
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9);
+            position: relative;
+            overflow: hidden;
+            z-index: 20;
+            transform: translateY(100px) rotateX(10deg);
+            opacity: 0;
+            animation: floatReveal 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes floatReveal {
+            to {
+                transform: translateY(0) rotateX(0);
+                opacity: 1;
+            }
+        }
+
+        .lp-preview-chrome {
+            height: 48px;
+            background: rgba(20, 20, 20, 0.8);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 12px;
+        }
+
+        .lp-chrome-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        .lp-dot-red {
+            background: #ff5f56;
+        }
+
+        .lp-dot-yellow {
+            background: #ffbd2e;
+        }
+
+        .lp-dot-green {
+            background: #27c93f;
+        }
+
+        .lp-preview-content {
+            display: flex;
+            height: calc(100% - 48px);
+        }
+
+        .lp-preview-sidebar {
+            width: 30%;
+            padding: 32px;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .lp-preview-main {
+            flex: 1;
+            padding: 40px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lp-mock-element {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .lp-mock-title {
+            width: 60%;
+            height: 32px;
+            margin-bottom: 24px;
+            background: rgba(58, 130, 247, 0.2);
+        }
+
+        .lp-mock-msg {
+            width: 100%;
+            height: 120px;
+        }
+
+        .lp-mock-embed {
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+            background: #0b0c0e;
+            border-left: 6px solid var(--accent);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 20px 40px rgba(58, 130, 247, 0.15);
+            }
+        }
+
+        /* Capabilities Marquee */
+        .lp-marquee-section {
+            padding: 100px 0;
+            background: var(--bg-deep);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .lp-marquee-section::before,
+        .lp-marquee-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .lp-marquee-section::before {
+            left: 0;
+            background: linear-gradient(to right, var(--bg-deep), transparent);
+        }
+
+        .lp-marquee-section::after {
+            right: 0;
+            background: linear-gradient(to left, var(--bg-deep), transparent);
+        }
+
+        .lp-marquee {
+            display: flex;
+            gap: 60px;
+            width: max-content;
+            animation: marqueeScroll 30s linear infinite;
+        }
+
+        @keyframes marqueeScroll {
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        .lp-capability {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .lp-capability:hover {
+            opacity: 1;
+        }
+
+        .lp-cap-icon {
+            font-size: 32px;
+            filter: grayscale(1);
+            transition: filter 0.3s;
+        }
+
+        .lp-capability:hover .lp-cap-icon {
+            filter: grayscale(0);
+        }
+
+        /* Features */
+        .lp-features-section {
+            padding: 140px 24px;
+            background: #050505;
+        }
+
+        .section-header {
+            margin-bottom: 80px;
+            max-width: 800px;
+        }
+
+        .section-tag {
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .section-header h2 {
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin: 0;
+            color: #fff;
+        }
+
+        .lp-features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lp-feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            padding: 48px;
+            border-radius: 32px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(30px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lp-feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top left, rgba(58, 130, 247, 0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .lp-feature-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(58, 130, 247, 0.4);
+            transform: translateY(-8px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .lp-feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .lp-feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .lp-feature-icon {
+            font-size: 40px;
+            margin-bottom: 32px;
+            display: block;
+        }
+
+        .lp-feature-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 16px;
+            color: #fff;
+        }
+
+        .lp-feature-card p {
+            font-size: 16px;
+            color: #888;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Stats */
+        .lp-stats-section {
+            padding: 100px 24px;
+            background: #000;
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .lp-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 48px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .lp-stat-number {
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: #fff;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .lp-stat-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Final CTA */
+        .lp-cta-section {
+            padding: 160px 24px;
+            text-align: center;
+            background: radial-gradient(circle at 50% 50%, rgba(58, 130, 247, 0.1) 0%, transparent 70%);
+        }
+
+        .lp-cta-section h2 {
+            font-size: clamp(40px, 8vw, 72px);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin: 0 0 48px;
+            color: #fff;
+        }
+
+        /* Footer */
+        .lp-footer {
+            padding: 80px 24px 48px;
+            background: #000;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .lp-footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lp-footer-logo {
+            font-weight: 800;
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 32px;
+            display: block;
+        }
+
+        .lp-footer p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .lp-footer-disclaimer {
+            font-size: 12px;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Response */
+        @media (max-width: 768px) {
+            .lp-nav {
+                width: 95%;
+                top: 12px;
+            }
+
+            .lp-nav-links {
+                display: none;
+            }
+
+            .lp-features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .lp-hero h1 {
+                font-size: 56px;
+            }
+
+            .lp-editor-preview {
+                aspect-ratio: 4 / 3;
+            }
+
+            .lp-preview-sidebar {
+                display: none;
+            }
+
+            .lp-mock-embed {
+                transform: scale(0.85);
+                max-width: 320px;
+            }
+
+            .top-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .header-brand h1 {
+                font-size: 20px;
+            }
+
+            .top-btn {
+                min-width: 70px;
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="glow-spot"></div>
-    <button class="fab-toggle" id="fabToggle" onclick="toggleMobileView()"><i class="octicon octicon-eye"></i>
-        Preview</button>
 
-    <div class="modal-overlay" id="entryModal" style="display: flex;">
-        <div class="modal-box">
-            <h2>Welcome to the Studio</h2>
-            <p>Heads up! This is a 100% unofficial tool. It has absolutely no affiliation with Fluxer.
-                It's simply a personal project created to help us design better webhooks.
-                <br><br>For more resources, visit <a href="https://fluxer.app"
-                    style="color: #00A8FC; text-decoration: none;">fluxer.app</a>.
-            </p>
-            <button class="btn-primary" onclick="closeEntryModal()">I Understand, Let's Build</button>
-        </div>
-    </div>
 
-    <div class="modal-overlay" id="saveModal" onmousedown="handleModalMouseDown(event)"
-        onmouseup="handleModalMouseUp(event, 'saveModal')">
-        <div class="modal-box" style="width: 400px; padding: 30px;">
-            <div class="modal-header"
-                style="padding: 0 0 15px 0; background: transparent; border-bottom: none; position: relative;">
-                <h2 style="margin:0; font-size:18px;">Save Configuration</h2>
-                <button class="close-btn" onclick="document.getElementById('saveModal').style.display='none'">×</button>
+    <div class="landing-page" id="landingPage">
+        <nav class="lp-nav" id="lpNav">
+            <a href="#" class="lp-brand">
+                <img src="https://i.imgur.com/TObDTBk.png" alt="Fluxer" style="width: 32px; height: 32px;">
+                Fluxer Studio
+            </a>
+            <div class="lp-nav-links">
+                <a href="#features" class="lp-nav-link">About</a>
+                <a href="#stats" class="lp-nav-link">Community</a>
             </div>
-            <div class="modal-body" style="padding: 0;">
-                <div style="margin-bottom: 20px;">
-                    <label>File Name</label>
-                    <input type="text" id="saveFileName" value="fluxer_config" />
+            <a href="#" class="lp-nav-cta" onclick="launchEditor(event)">Launch Editor</a>
+        </nav>
+
+        <section class="lp-hero">
+            <div class="lp-spotlight">
+                <svg viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="500" cy="500" r="500" fill="url(#hero_grad)" fill-opacity="0.3" />
+                    <defs>
+                        <radialGradient id="hero_grad" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                            gradientTransform="translate(500 500) rotate(90) scale(500)">
+                            <stop stop-color="#3A82F7" />
+                            <stop offset="1" stop-color="#3A82F7" stop-opacity="0" />
+                        </radialGradient>
+                    </defs>
+                </svg>
+            </div>
+            <canvas id="particleCanvas"></canvas>
+
+            <div class="lp-hero-tag">A Community Studio</div>
+            <h1>Crafting better<br>
+                <div class="lp-loop-wrapper">
+                    <ul class="lp-loop-list">
+                        <li>webhooks</li>
+                        <li>embeds</li>
+                        <li>messages</li>
+                        <li>communities</li>
+                    </ul>
                 </div>
-                <div class="glass-card" style="margin-bottom: 20px;">
-                    <label class="checkbox-wrapper" style="align-items: center; margin-bottom: 0;">
-                        <input type="checkbox" id="includeWebhookCheckbox">
-                        <span style="font-size: 13px; font-weight: 500;">Include secret Webhook URL</span>
-                    </label>
-                    <div style="font-size: 11px; color: #888; margin-top: 5px; margin-left: 26px; line-height: 1.4;">
-                        Warning: If you share this config with others, they will be able to post messages via your
-                        webhook!
+            </h1>
+            <p>The go-to tool for Fluxer power users who care about their server's look. Built by the community, for the
+                community.</p>
+            <div class="lp-hero-btns">
+                <a href="#" class="lp-btn-primary" onclick="launchEditor(event)">Open the Editor</a>
+                <a href="#features" class="lp-btn-outline">See Features</a>
+            </div>
+
+            <!-- Editor Preview Mockup -->
+            <div class="lp-editor-preview">
+                <div class="lp-preview-chrome">
+                    <div class="lp-chrome-dot lp-dot-red"></div>
+                    <div class="lp-chrome-dot lp-dot-yellow"></div>
+                    <div class="lp-chrome-dot lp-dot-green"></div>
+                    <div
+                        style="margin-left: auto; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 4px; font-size: 10px; color: #666; font-family: monospace;">
+                        fluxer.studio/editor</div>
+                </div>
+                <div class="lp-preview-content">
+                    <div class="lp-preview-sidebar">
+                        <div class="lp-mock-element lp-mock-title"></div>
+                        <div class="lp-mock-element" style="width: 80%;"></div>
+                        <div class="lp-mock-element" style="width: 90%;"></div>
+                        <div class="lp-mock-element" style="width: 70%;"></div>
+                        <div class="lp-mock-element lp-mock-msg" style="margin-top: 20px;"></div>
                     </div>
-                </div>
-                <button class="btn-primary" onclick="executeSaveConfig()">Save File</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="guideModal" onmousedown="handleModalMouseDown(event)"
-        onmouseup="handleModalMouseUp(event, 'guideModal')">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h2 style="margin:0; font-size:18px;">Markdown & LaTeX Guide</h2>
-                <button class="close-btn" onclick="toggleModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="g-section">
-                    <div class="g-title">Headers & Formatting</div>
-                    <table class="g-table">
-                        <tr>
-                            <td># Heading 1</td>
-                            <td>
-                                <h1 style="margin:0; font-size:22px; line-height:1; color:white;">Heading 1</h1>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>## Heading 2</td>
-                            <td>
-                                <h2 style="margin:0; font-size:18px; line-height:1; color:white;">Heading 2</h2>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>### Heading 3</td>
-                            <td>
-                                <h3 style="margin:0; font-size:15px; line-height:1; color:white;">Heading 3</h3>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>**bold**</td>
-                            <td><strong>Bold</strong></td>
-                        </tr>
-                        <tr>
-                            <td>*italic*</td>
-                            <td><em>Italic</em></td>
-                        </tr>
-                        <tr>
-                            <td>__underlined__</td>
-                            <td><u>Underlined</u></td>
-                        </tr>
-                        <tr>
-                            <td>~~strike~~</td>
-                            <td><s>Strikethrough</s></td>
-                        </tr>
-                        <tr>
-                            <td>||spoiler||</td>
-                            <td><span class="spoiler">Hidden Spoiler</span></td>
-                        </tr>
-                        <tr>
-                            <td>`code`</td>
-                            <td>Inline Code</td>
-                        </tr>
-                        <tr>
-                            <td>-# text</td>
-                            <td><span style="font-size: 0.8em; color: var(--fluxer-subtext)">Small subtext</span></td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="g-section">
-                    <div class="g-title">Block Elements & Admonitions</div>
-                    <table class="g-table">
-                        <tr>
-                            <td>> text</td>
-                            <td>Single line quote</td>
-                        </tr>
-                        <tr>
-                            <td>>>> text</td>
-                            <td>Multiline quote</td>
-                        </tr>
-                        <tr>
-                            <td>> [!NOTE]<br>Text</td>
-                            <td><span
-                                    style="color:#5865F2; font-weight:bold; border-left: 3px solid #5865F2; padding-left: 5px;">Note</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>> [!TIP]<br>Text</td>
-                            <td><span
-                                    style="color:#23A559; font-weight:bold; border-left: 3px solid #23A559; padding-left: 5px;">Tip</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>> [!IMPORTANT]<br>Text</td>
-                            <td><span
-                                    style="color:#9B59B6; font-weight:bold; border-left: 3px solid #9B59B6; padding-left: 5px;">Important</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>> [!WARNING]<br>Text</td>
-                            <td><span
-                                    style="color:#F0B132; font-weight:bold; border-left: 3px solid #F0B132; padding-left: 5px;">Warning</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>> [!CAUTION]<br>Text</td>
-                            <td><span
-                                    style="color:#F23F42; font-weight:bold; border-left: 3px solid #F23F42; padding-left: 5px;">Caution</span>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="g-section">
-                    <div class="g-title">LaTeX (Math)</div>
-                    <div class="g-note">Fluxer supports complex LaTeX math formulas. Wrap them in a code block with
-                        `latex`.</div>
-                    <div class="g-code">```latex<br>\int_0^\infty e^{-x} dx<br>```</div>
-                    <div class="g-math-preview" id="staticMathPreview"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="colorPickerModal" onmousedown="handleModalMouseDown(event)"
-        onmouseup="handleModalMouseUp(event, 'colorPickerModal')">
-        <div class="cp-modal-box" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()">
-            <div class="cp-wheel-container" id="cpWheelContainer" onmousedown="onWheelInteract(event)"
-                onmousemove="onWheelDrag(event)" onmouseup="endWheelDrag()" onmouseleave="endWheelDrag()"
-                ontouchstart="onWheelInteract(event)" ontouchmove="onWheelDrag(event)" ontouchend="endWheelDrag()">
-                <canvas id="cpCanvas" class="cp-wheel"></canvas>
-                <div class="cp-reticle" id="cpReticle"></div>
-            </div>
-
-            <div class="cp-slider-container">
-                <input type="range" min="0" max="1" step="0.01" value="1" class="cp-slider" id="cpSlider"
-                    oninput="onSliderChange()">
-            </div>
-
-            <div class="cp-manual-inputs">
-                <div class="cp-input-group hex-group">
-                    <label>HEX</label>
-                    <input type="text" id="cpHexInput" value="#FFFFFF" maxlength="7"
-                        oninput="handleHexInput(this.value)">
-                </div>
-                <div class="cp-input-group">
-                    <label>R</label>
-                    <input type="number" id="cpRInput" value="255" min="0" max="255" oninput="handleRgbInput()">
-                </div>
-                <div class="cp-input-group">
-                    <label>G</label>
-                    <input type="number" id="cpGInput" value="255" min="0" max="255" oninput="handleRgbInput()">
-                </div>
-                <div class="cp-input-group">
-                    <label>B</label>
-                    <input type="number" id="cpBInput" value="255" min="0" max="255" oninput="handleRgbInput()">
-                </div>
-            </div>
-
-            <div class="cp-buttons">
-                <button class="cp-btn cp-btn-cancel" onclick="closeColorPicker()">Cancel</button>
-                <button class="cp-btn cp-btn-confirm" onclick="confirmColorPicker()">Confirm</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="backupsModal" onmousedown="handleModalMouseDown(event)"
-        onmouseup="handleModalMouseUp(event, 'backupsModal')">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h2 style="margin:0; font-size:18px;">Backups & Storage</h2>
-                <button class="close-btn"
-                    onclick="document.getElementById('backupsModal').style.display='none'">×</button>
-            </div>
-            <div class="modal-body">
-
-                <div class="backup-warning" id="persistWarning">
-                    <h3
-                        style="margin:0 0 5px 0; color:#F0B132; font-size:15px; display:flex; gap:6px; align-items:center;">
-                        <i class="octicon octicon-alert"></i> Warning
-                    </h3>
-                    <p>Your browser did not grant permission to use persistent storage for this site. I just wanted
-                        something easy to use.</p>
-                    <button class="btn-primary" style="padding: 10px 15px; width: auto; font-size: 13px;"
-                        onclick="requestStoragePersistence()">Request Permission</button>
-                    <button class="btn-secondary"
-                        style="margin-top: 0; padding: 10px 15px; width: auto; display: inline-block; text-align: center;"
-                        onclick="document.getElementById('persistWarning').style.display='none'">Dismiss</button>
-                </div>
-
-                <div id="backupsList">
-                </div>
-
-                <div
-                    style="display: flex; gap: 10px; justify-content: space-between; border-top: 1px solid var(--glass-border); padding-top: 20px;">
-                    <button class="btn-secondary" style="width: auto; text-align: center; display: inline-block;"
-                        onclick="loadDefaultTemplate()">Load Blank Template</button>
-                    <button class="btn-danger"
-                        style="margin: 0; padding: 10px 16px; font-size: 13px; font-weight: bold;"
-                        onclick="clearAllWorkspace()">Clear Entire Workspace</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="saveBackupModal" style="z-index: 1001;" onmousedown="handleModalMouseDown(event)"
-        onmouseup="handleModalMouseUp(event, 'saveBackupModal')">
-        <div class="modal-box" style="width: 400px; padding: 30px;">
-            <div class="modal-header"
-                style="padding: 0 0 15px 0; background: transparent; border-bottom: none; position: relative;">
-                <h2 style="margin:0; font-size:18px;">Create Backup</h2>
-                <button class="close-btn"
-                    onclick="document.getElementById('saveBackupModal').style.display='none'">×</button>
-            </div>
-            <div class="modal-body" style="padding: 0;">
-                <div style="margin-bottom: 20px;">
-                    <label>Save Name</label>
-                    <input type="text" id="backupNameInput" placeholder="My Awesome Layout..." />
-                </div>
-                <button class="btn-primary" onclick="confirmSaveBackup()">Save to Browser Storage</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="app-layout">
-        <div class="editor-zone" id="editorZone">
-            <div class="top-header">
-                <div class="header-brand">
-                    <img src="https://i.imgur.com/TObDTBk.png" class="brand-logo"
-                        alt="Fluxer Logo" style="width: 50px; height: 50px; object-fit: contain;">
-                    <div>
-                        <h1>Fluxer Webhook Editor</h1>
-                        <div class="subtitle">Embeds done easy</div>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <button class="top-btn" onclick="openBackupsModal()" title="Manage Backups and Saves">
-                        <span class="top-btn-icon">🕑</span>
-                        <span>Backups</span>
-                    </button>
-                    <div style="width: 1px; height: 35px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>
-                    <button class="top-btn" onclick="document.getElementById('fileInput').click()"
-                        title="Load Config File">
-                        <span class="top-btn-icon">📂</span>
-                        <span>Load</span>
-                    </button>
-                    <button class="top-btn" onclick="saveConfig()" title="Export Config File">
-                        <span class="top-btn-icon">💾</span>
-                        <span>Save</span>
-                    </button>
-                    <div style="display: none;">
-                        <button class="btn-icon" onclick="document.getElementById('fileInput').click()"
-                            title="Load Config File">📥 Load</button>
-                        <button class="btn-icon" onclick="saveConfig()" title="Export Config File">💾 Save</button>
-                    </div>
-                    <input type="file" id="fileInput" accept=".json" style="display: none;"
-                        onchange="loadConfig(event)">
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-secondary" onclick="toggleModal()" style="flex: 1; justify-content: center;"><span>📝
-                        Markdown Guide</span></button>
-                <button class="btn-secondary" onclick="promptSaveBackup()"
-                    style="flex: 1; justify-content: center; background: rgba(58, 130, 247, 0.1); border-color: rgba(58, 130, 247, 0.3); color: white;"><span><i
-                            class="octicon octicon-cloud-upload"></i> Save to Backups</span></button>
-            </div>
-
-            <div class="glass-card">
-                <label>Connection (Webhook URL)</label>
-                <input type="password" id="webhookUrl" placeholder="https://fluxer.app/api/webhooks/..."
-                    oninput="updateState('webhookUrl', this.value)" />
-            </div>
-
-            <div class="glass-card row-inputs">
-                <div>
-                    <label>Bot Name</label>
-                    <input type="text" id="username" placeholder="Fluxer System"
-                        oninput="updateState('username', this.value)" />
-                </div>
-                <div>
-                    <label>Avatar URL</label>
-                    <input type="text" id="avatar" placeholder="https://..."
-                        oninput="updateState('avatar', this.value)" />
-                </div>
-            </div>
-
-            <div class="glass-card">
-                <label>Message Content</label>
-                <textarea id="content" placeholder="Hello! (you can use) ||spoilers||, **bold**, or > [!NOTE]"
-                    oninput="updateState('content', this.value)"></textarea>
-            </div>
-
-            <div id="embedsContainer"></div>
-
-            <button class="btn-secondary" style="justify-content: center; border-style: dashed;" onclick="addEmbed()"><i
-                    class="octicon octicon-plus"></i> Add Another Embed</button>
-
-            <div class="disclaimer-area">
-                <label class="checkbox-wrapper">
-                    <input type="checkbox" id="forgiveCheckbox" onchange="toggleSendButton()">
-                    <span><strong>Wait!</strong> I understand that this page may have bugs.
-
-                        Please report to @Nolol#0780 on fluxer or Nexztop on discord for any bugs that may occur.</span>
-                </label>
-            </div>
-
-            <button class="btn-primary" id="sendBtn" onclick="sendWebhook()" disabled>Send Message</button>
-        </div>
-
-        <div class="fab-delete-container hidden" id="fabDeleteContainer">
-            <div class="fab-delete-toggle" onclick="toggleFabDelete()">
-                <div id="fabDeleteIcon">🗑️</div>
-            </div>
-            <button class="fab-delete-btn" onclick="clearAllWorkspace()">
-                🗑️ Delete All
-            </button>
-        </div>
-
-        <div class="preview-zone">
-            <div class="fluxer-mock-window">
-                <div class="f-msg">
-                    <div class="f-avatar" id="prevAvatar" style="background-color: #5865F2;"></div>
-                    <div class="f-content">
-                        <div class="f-header">
-                            <span class="f-username" id="prevName">Fluxer System</span>
-                            <span class="f-bot-tag">APP</span>
-                            <span class="f-timestamp">Today at 12:00 PM</span>
+                    <div class="lp-preview-main">
+                        <div class="lp-mock-embed">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <div style="width: 20px; height: 20px; border-radius: 50%; background: #ccc;"></div>
+                                <div class="lp-mock-element" style="width: 60%; height: 12px;"></div>
+                            </div>
+                            <div class="lp-mock-element" style="width: 80%; height: 20px; background: #fff;"></div>
+                            <div class="lp-mock-element" style="width: 100%; height: 60px;"></div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="lp-mock-element" style="height: 40px;"></div>
+                                <div class="lp-mock-element" style="height: 40px;"></div>
+                            </div>
                         </div>
-                        <div class="f-text" id="prevContent"></div>
-                        <div id="prevEmbedsContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- What You Can Do Section -->
+        <section class="lp-marquee-section">
+            <div class="lp-marquee" id="marqueeContent">
+                <div class="lp-capability"><span class="lp-cap-icon">⚡</span> Dynamic Embeds</div>
+                <div class="lp-capability"><span class="lp-cap-icon">📝</span> Markdown Pro</div>
+                <div class="lp-capability"><span class="lp-cap-icon">ℱ</span> LaTeX Support</div>
+                <div class="lp-capability"><span class="lp-cap-icon">🔄</span> Real-time Sync</div>
+                <div class="lp-capability"><span class="lp-cap-icon">🎨</span> Custom Colors</div>
+                <div class="lp-capability"><span class="lp-cap-icon">📁</span> Cloud Backups</div>
+                <div class="lp-capability"><span class="lp-cap-icon">📱</span> Mobile Friendly</div>
+                <div class="lp-capability"><span class="lp-cap-icon">🚀</span> Fast Delivery</div>
+            </div>
+        </section>
+
+        <section class="lp-features-section" id="features">
+            <div class="lp-features-container" style="max-width: 1200px; margin: 0 auto;">
+                <div class="section-header">
+                    <span class="section-tag">Features</span>
+                    <h2>Everything you need,<br>nothing you don't.</h2>
+                </div>
+                <div class="lp-features-grid">
+                    <div class="lp-feature-card">
+                        <span class="lp-feature-icon">👁️</span>
+                        <h3>See It First</h3>
+                        <p>Real-time mockups that show exactly how your message lands in Fluxer.</p>
+                    </div>
+                    <div class="lp-feature-card">
+                        <span class="lp-feature-icon">📝</span>
+                        <h3>Markdown Pro</h3>
+                        <p>Use spoilers, subtext, and blockquotes to make your messages pop.</p>
+                    </div>
+                    <div class="lp-feature-card">
+                        <span class="lp-feature-icon">ℱ</span>
+                        <h3>Math Friendly</h3>
+                        <p>Write complex math formulas with LaTeX, just like you would anywhere else.</p>
+                    </div>
+                    <div class="lp-feature-card">
+                        <span class="lp-feature-icon">✨</span>
+                        <h3>Embed Master</h3>
+                        <p>Add authors, footers, and grid fields to organize your community info.</p>
+                    </div>
+                    <div class="lp-feature-card">
+                        <span class="lp-feature-icon">☁️</span>
+                        <h3>Safe Backups</h3>
+                        <p>Worry-free storage. Save your best layouts locally and never lose them.</p>
+                    </div>
+                    <div class="lp-feature-card">
+                        <span class="lp-feature-icon">🛠️</span>
+                        <h3>By the People</h3>
+                        <p>An open, community-centric project. No bloat, just the tools you actually use.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lp-stats-section" id="stats">
+            <div class="lp-stats-grid">
+                <div class="lp-stat">
+                    <span class="lp-stat-number" data-text="Fully Local & Reliable">Fully Local & Reliable</span>
+                    <span class="lp-stat-label">Fully Private</span>
+                </div>
+                <div class="lp-stat">
+                    <span class="lp-stat-number" data-text="Empowering Minds">Empowering Minds</span>
+                    <span class="lp-stat-label">Join Us</span>
+                </div>
+                <div class="lp-stat">
+                    <span class="lp-stat-number" data-target="101" data-suffix="%">0</span>
+                    <span class="lp-stat-label">Live & Ready</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="lp-cta-section">
+            <h2>Ready to build<br>something awesome?</h2>
+            <a href="#" class="lp-btn-primary" onclick="launchEditor(event)">Launch the Editor →</a>
+        </section>
+
+        <footer class="lp-footer">
+            <div class="lp-footer-content">
+                <span class="lp-footer-logo">Fluxer Studio</span>
+                <p>An unofficial community tool. Built for the Fluxer community.</p>
+                <div class="lp-footer-disclaimer">
+                    Fluxer Webhook Studio Pro — An unofficial community tool. Not affiliated with Fluxer.
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Wrapping Editor Components -->
+    <div class="editor-wrapper" id="editorWrapper">
+        <div class="glow-spot"></div>
+        <button class="fab-toggle" id="fabToggle" onclick="toggleMobileView()"><i class="octicon octicon-eye"></i>
+            Preview</button>
+
+
+        <div class="modal-overlay" id="saveModal" onmousedown="handleModalMouseDown(event)"
+            onmouseup="handleModalMouseUp(event, 'saveModal')">
+            <div class="modal-box" style="width: 400px; padding: 30px;">
+                <div class="modal-header"
+                    style="padding: 0 0 15px 0; background: transparent; border-bottom: none; position: relative;">
+                    <h2 style="margin:0; font-size:18px;">Save Configuration</h2>
+                    <button class="close-btn"
+                        onclick="document.getElementById('saveModal').style.display='none'">×</button>
+                </div>
+                <div class="modal-body" style="padding: 0;">
+                    <div style="margin-bottom: 20px;">
+                        <label>File Name</label>
+                        <input type="text" id="saveFileName" value="fluxer_config" />
+                    </div>
+                    <div class="glass-card" style="margin-bottom: 20px;">
+                        <label class="checkbox-wrapper" style="align-items: center; margin-bottom: 0;">
+                            <input type="checkbox" id="includeWebhookCheckbox">
+                            <span style="font-size: 13px; font-weight: 500;">Include secret Webhook URL</span>
+                        </label>
+                        <div
+                            style="font-size: 11px; color: #888; margin-top: 5px; margin-left: 26px; line-height: 1.4;">
+                            Warning: If you share this config with others, they will be able to post messages via your
+                            webhook!
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="executeSaveConfig()">Save File</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="guideModal" onmousedown="handleModalMouseDown(event)"
+            onmouseup="handleModalMouseUp(event, 'guideModal')">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h2 style="margin:0; font-size:18px;">Markdown & LaTeX Guide</h2>
+                    <button class="close-btn" onclick="toggleModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="g-section">
+                        <div class="g-title">Headers & Formatting</div>
+                        <table class="g-table">
+                            <tr>
+                                <td># Heading 1</td>
+                                <td>
+                                    <h1 style="margin:0; font-size:22px; line-height:1; color:white;">Heading 1</h1>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>## Heading 2</td>
+                                <td>
+                                    <h2 style="margin:0; font-size:18px; line-height:1; color:white;">Heading 2</h2>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>### Heading 3</td>
+                                <td>
+                                    <h3 style="margin:0; font-size:15px; line-height:1; color:white;">Heading 3</h3>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>**bold**</td>
+                                <td><strong>Bold</strong></td>
+                            </tr>
+                            <tr>
+                                <td>*italic*</td>
+                                <td><em>Italic</em></td>
+                            </tr>
+                            <tr>
+                                <td>__underlined__</td>
+                                <td><u>Underlined</u></td>
+                            </tr>
+                            <tr>
+                                <td>~~strike~~</td>
+                                <td><s>Strikethrough</s></td>
+                            </tr>
+                            <tr>
+                                <td>||spoiler||</td>
+                                <td><span class="spoiler">Hidden Spoiler</span></td>
+                            </tr>
+                            <tr>
+                                <td>`code`</td>
+                                <td>Inline Code</td>
+                            </tr>
+                            <tr>
+                                <td>-# text</td>
+                                <td><span style="font-size: 0.8em; color: var(--fluxer-subtext)">Small subtext</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="g-section">
+                        <div class="g-title">Block Elements & Admonitions</div>
+                        <table class="g-table">
+                            <tr>
+                                <td>> text</td>
+                                <td>Single line quote</td>
+                            </tr>
+                            <tr>
+                                <td>>>> text</td>
+                                <td>Multiline quote</td>
+                            </tr>
+                            <tr>
+                                <td>> [!NOTE]<br>Text</td>
+                                <td><span
+                                        style="color:#5865F2; font-weight:bold; border-left: 3px solid #5865F2; padding-left: 5px;">Note</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>> [!TIP]<br>Text</td>
+                                <td><span
+                                        style="color:#23A559; font-weight:bold; border-left: 3px solid #23A559; padding-left: 5px;">Tip</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>> [!IMPORTANT]<br>Text</td>
+                                <td><span
+                                        style="color:#9B59B6; font-weight:bold; border-left: 3px solid #9B59B6; padding-left: 5px;">Important</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>> [!WARNING]<br>Text</td>
+                                <td><span
+                                        style="color:#F0B132; font-weight:bold; border-left: 3px solid #F0B132; padding-left: 5px;">Warning</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>> [!CAUTION]<br>Text</td>
+                                <td><span
+                                        style="color:#F23F42; font-weight:bold; border-left: 3px solid #F23F42; padding-left: 5px;">Caution</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="g-section">
+                        <div class="g-title">LaTeX (Math)</div>
+                        <div class="g-note">Fluxer supports complex LaTeX math formulas. Wrap them in a code block with
+                            `latex`.</div>
+                        <div class="g-code">```latex<br>\int_0^\infty e^{-x} dx<br>```</div>
+                        <div class="g-math-preview" id="staticMathPreview"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="colorPickerModal" onmousedown="handleModalMouseDown(event)"
+            onmouseup="handleModalMouseUp(event, 'colorPickerModal')">
+            <div class="cp-modal-box" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()">
+                <div class="cp-wheel-container" id="cpWheelContainer" onmousedown="onWheelInteract(event)"
+                    onmousemove="onWheelDrag(event)" onmouseup="endWheelDrag()" onmouseleave="endWheelDrag()"
+                    ontouchstart="onWheelInteract(event)" ontouchmove="onWheelDrag(event)" ontouchend="endWheelDrag()">
+                    <canvas id="cpCanvas" class="cp-wheel"></canvas>
+                    <div class="cp-reticle" id="cpReticle"></div>
+                </div>
+
+                <div class="cp-slider-container">
+                    <input type="range" min="0" max="1" step="0.01" value="1" class="cp-slider" id="cpSlider"
+                        oninput="onSliderChange()">
+                </div>
+
+                <div class="cp-manual-inputs">
+                    <div class="cp-input-group hex-group">
+                        <label>HEX</label>
+                        <input type="text" id="cpHexInput" value="#FFFFFF" maxlength="7"
+                            oninput="handleHexInput(this.value)">
+                    </div>
+                    <div class="cp-input-group">
+                        <label>R</label>
+                        <input type="number" id="cpRInput" value="255" min="0" max="255" oninput="handleRgbInput()">
+                    </div>
+                    <div class="cp-input-group">
+                        <label>G</label>
+                        <input type="number" id="cpGInput" value="255" min="0" max="255" oninput="handleRgbInput()">
+                    </div>
+                    <div class="cp-input-group">
+                        <label>B</label>
+                        <input type="number" id="cpBInput" value="255" min="0" max="255" oninput="handleRgbInput()">
+                    </div>
+                </div>
+
+                <div class="cp-buttons">
+                    <button class="cp-btn cp-btn-cancel" onclick="closeColorPicker()">Cancel</button>
+                    <button class="cp-btn cp-btn-confirm" onclick="confirmColorPicker()">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="backupsModal" onmousedown="handleModalMouseDown(event)"
+            onmouseup="handleModalMouseUp(event, 'backupsModal')">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h2 style="margin:0; font-size:18px;">Backups & Storage</h2>
+                    <button class="close-btn"
+                        onclick="document.getElementById('backupsModal').style.display='none'">×</button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="backup-warning" id="persistWarning">
+                        <h3
+                            style="margin:0 0 5px 0; color:#F0B132; font-size:15px; display:flex; gap:6px; align-items:center;">
+                            <i class="octicon octicon-alert"></i> Warning
+                        </h3>
+                        <p>Your browser did not grant permission to use persistent storage for this site. I just wanted
+                            something easy to use.</p>
+                        <button class="btn-primary" style="padding: 10px 15px; width: auto; font-size: 13px;"
+                            onclick="requestStoragePersistence()">Request Permission</button>
+                        <button class="btn-secondary"
+                            style="margin-top: 0; padding: 10px 15px; width: auto; display: inline-block; text-align: center;"
+                            onclick="document.getElementById('persistWarning').style.display='none'">Dismiss</button>
+                    </div>
+
+                    <div id="backupsList">
+                    </div>
+
+                    <div
+                        style="display: flex; gap: 10px; justify-content: space-between; border-top: 1px solid var(--glass-border); padding-top: 20px;">
+                        <button class="btn-secondary"
+                            style="width: auto; text-align: center; display: inline-block; border-radius: 99px;"
+                            onclick="loadDefaultTemplate()">Load Blank Template</button>
+                        <button class="btn-danger" style="border-radius: 99px;" onclick="clearAllWorkspace()">Clear
+                            Entire Workspace</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="saveBackupModal" style="z-index: 1001;" onmousedown="handleModalMouseDown(event)"
+            onmouseup="handleModalMouseUp(event, 'saveBackupModal')">
+            <div class="modal-box" style="width: 400px; padding: 30px;">
+                <div class="modal-header"
+                    style="padding: 0 0 15px 0; background: transparent; border-bottom: none; position: relative;">
+                    <h2 style="margin:0; font-size:18px;">Create Backup</h2>
+                    <button class="close-btn"
+                        onclick="document.getElementById('saveBackupModal').style.display='none'">×</button>
+                </div>
+                <div class="modal-body" style="padding: 0;">
+                    <div style="margin-bottom: 20px;">
+                        <label>Save Name</label>
+                        <input type="text" id="backupNameInput" placeholder="My Awesome Layout..." />
+                    </div>
+                    <button class="btn-primary" onclick="confirmSaveBackup()">Save to Browser Storage</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-layout">
+            <div class="editor-zone" id="editorZone">
+                <div class="top-header">
+                    <div class="header-brand">
+                        <img src="https://i.imgur.com/TObDTBk.png" class="brand-logo" alt="Fluxer Logo"
+                            style="width: 50px; height: 50px; object-fit: contain;">
+                        <div>
+                            <h1>Fluxer Webhook Editor</h1>
+                            <div class="subtitle">Embeds done easy</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="top-btn" onclick="openBackupsModal()" title="Manage Backups and Saves">
+                            <span class="top-btn-icon">🕑</span>
+                            <span>Backups</span>
+                        </button>
+                        <div style="width: 1px; height: 35px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>
+                        <button class="top-btn" onclick="document.getElementById('fileInput').click()"
+                            title="Load Config File">
+                            <span class="top-btn-icon">📂</span>
+                            <span>Load</span>
+                        </button>
+                        <button class="top-btn" onclick="saveConfig()" title="Export Config File">
+                            <span class="top-btn-icon">💾</span>
+                            <span>Save</span>
+                        </button>
+                        <div style="display: none;">
+                            <button class="btn-icon" onclick="document.getElementById('fileInput').click()"
+                                title="Load Config File">📥 Load</button>
+                            <button class="btn-icon" onclick="saveConfig()" title="Export Config File">💾 Save</button>
+                        </div>
+                        <input type="file" id="fileInput" accept=".json" style="display: none;"
+                            onchange="loadConfig(event)">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-secondary" onclick="toggleModal()"
+                        style="flex: 1; justify-content: center;"><span>📝
+                            Markdown Guide</span></button>
+                    <button class="btn-secondary" onclick="promptSaveBackup()"
+                        style="flex: 1; justify-content: center; background: rgba(58, 130, 247, 0.1); border-color: rgba(58, 130, 247, 0.3); color: white;"><span><i
+                                class="octicon octicon-cloud-upload"></i> Save to Backups</span></button>
+                </div>
+
+                <div class="glass-card">
+                    <label>Connection (Webhook URL)</label>
+                    <input type="password" id="webhookUrl" placeholder="https://fluxer.app/api/webhooks/..."
+                        oninput="updateState('webhookUrl', this.value)" />
+                </div>
+
+                <div class="glass-card row-inputs">
+                    <div>
+                        <label>Bot Name</label>
+                        <input type="text" id="username" placeholder="Fluxer System"
+                            oninput="updateState('username', this.value)" />
+                    </div>
+                    <div>
+                        <label>Avatar URL</label>
+                        <input type="text" id="avatar" placeholder="https://..."
+                            oninput="updateState('avatar', this.value)" />
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <label>Message Content</label>
+                    <textarea id="content" placeholder="Hello! (you can use) ||spoilers||, **bold**, or > [!NOTE]"
+                        oninput="updateState('content', this.value)"></textarea>
+                </div>
+
+                <div id="embedsContainer"></div>
+
+                <button class="btn-secondary" style="justify-content: center; border-style: dashed;"
+                    onclick="addEmbed()"><i class="octicon octicon-plus"></i> Add Another Embed</button>
+
+                <div class="disclaimer-area">
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox" id="forgiveCheckbox" onchange="toggleSendButton()">
+                        <span><strong>Wait!</strong> I understand that this page may have bugs.
+
+                            Please report to @Nolol#0780 on fluxer or Nexztop on discord for any bugs that may
+                            occur.</span>
+                    </label>
+                </div>
+
+                <button class="btn-primary" id="sendBtn" onclick="sendWebhook()" disabled>Send Message</button>
+            </div>
+
+            <div class="fab-delete-container hidden" id="fabDeleteContainer">
+                <div class="fab-delete-toggle" onclick="toggleFabDelete()">
+                    <div id="fabDeleteIcon">🗑️</div>
+                </div>
+                <button class="fab-delete-btn" onclick="clearAllWorkspace()">
+                    🗑️ Delete All
+                </button>
+            </div>
+
+            <div class="preview-zone">
+                <div class="fluxer-mock-window">
+                    <div class="f-msg">
+                        <div class="f-avatar" id="prevAvatar" style="background-color: #5865F2;"></div>
+                        <div class="f-content">
+                            <div class="f-header">
+                                <span class="f-username" id="prevName">Fluxer System</span>
+                                <span class="f-bot-tag">APP</span>
+                                <span class="f-timestamp">Today at 12:00 PM</span>
+                            </div>
+                            <div class="f-text" id="prevContent"></div>
+                            <div id="prevEmbedsContainer"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <script>
+        // Landing Page Specific Logic
+        function launchEditor(e) {
+            if (e) e.preventDefault();
+            const lp = document.getElementById('landingPage');
+            const wrapper = document.getElementById('editorWrapper');
+            const glow = document.getElementById('mouseGlow');
+
+            // Stop mouse glow immediately
+            if (glow) {
+                glow.style.display = 'none';
+            }
+
+            lp.classList.add('lp-fade-out');
+
+            // Transition Glow Swell
+            const swell = document.createElement('div');
+            swell.style.position = 'fixed';
+            // Start swell from mouse position for a more integrated feel
+            const startX = e && e.clientX ? e.clientX : window.innerWidth / 2;
+            const startY = e && e.clientY ? e.clientY : window.innerHeight / 2;
+
+            swell.style.top = startY + 'px';
+            swell.style.left = startX + 'px';
+            swell.style.transform = 'translate(-50%, -50%) scale(0)';
+            swell.style.width = '100vw';
+            swell.style.height = '100vh';
+            swell.style.background = 'radial-gradient(circle, var(--accent) 0%, transparent 70%)';
+            swell.style.opacity = '0.6';
+            swell.style.zIndex = '99999';
+            swell.style.pointerEvents = 'none';
+            swell.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+            document.body.appendChild(swell);
+
+            requestAnimationFrame(() => {
+                swell.style.transform = 'translate(-50%, -50%) scale(5)';
+                swell.style.opacity = '0';
+            });
+
+            setTimeout(() => {
+                document.body.classList.add('editor-mode');
+                document.body.classList.remove('lp-scroll-mode');
+                lp.style.display = 'none';
+                wrapper.style.display = 'flex';
+                setTimeout(() => swell.remove(), 600);
+            }, 600);
+        }
+
+        // Sticky Nav & Scroll Effects
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('lpNav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+
+            // Feature Card Reveal on Scroll
+            const cards = document.querySelectorAll('.lp-feature-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.8) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }
+            });
+
+            // Stats Counter (supports textual stats and numeric animation)
+            const stats = document.querySelectorAll('.lp-stat-number');
+            stats.forEach(stat => {
+                const rect = stat.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.9 && !stat.classList.contains('counted')) {
+                    const targetAttr = stat.getAttribute('data-target');
+                    const suffix = stat.getAttribute('data-suffix') || '';
+                    const text = stat.getAttribute('data-text') || stat.textContent.trim();
+
+                    // If a numeric data-target exists, animate numbers (supports decimals)
+                    if (targetAttr !== null && targetAttr !== '' && !isNaN(parseFloat(targetAttr))) {
+                        const target = parseFloat(targetAttr);
+                        const decimalPlaces = (targetAttr.indexOf('.') !== -1) ? targetAttr.split('.')[1].length : 0;
+                        let current = 0;
+                        const steps = 50;
+                        const inc = target / steps;
+                        const timer = setInterval(() => {
+                            current += inc;
+                            if (current >= target) {
+                                stat.innerText = (decimalPlaces ? target.toFixed(decimalPlaces) : Math.floor(target)) + suffix;
+                                clearInterval(timer);
+                            } else {
+                                stat.innerText = (decimalPlaces ? current.toFixed(decimalPlaces) : Math.floor(current)) + suffix;
+                            }
+                        }, 20);
+                    } else {
+                        // Non-numeric: show provided text
+                        stat.innerText = text;
+                    }
+
+                    stat.classList.add('counted');
+                }
+            });
+        });
+
+        // Particles Canvas
+        const canvas = document.getElementById('particleCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            function initParticles() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                particles = [];
+                for (let i = 0; i < 50; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        size: Math.random() * 2 + 1,
+                        speedX: Math.random() * 0.5 - 0.25,
+                        speedY: Math.random() * 0.5 - 0.25,
+                        opacity: Math.random() * 0.5
+                    });
+                }
+            }
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+                    ctx.fillStyle = `rgba(58, 130, 247, ${p.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animateParticles);
+            }
+            window.addEventListener('resize', initParticles);
+            initParticles();
+            animateParticles();
+        }
+
+        // Set Initial Mode
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('lp-scroll-mode');
+
+            // Mouse Glow Interaction
+            const glow = document.getElementById('mouseGlow');
+            window.addEventListener('mousemove', (e) => {
+                if (document.body.classList.contains('lp-scroll-mode')) {
+                    glow.style.opacity = '1';
+                    glow.style.left = e.clientX + 'px';
+                    glow.style.top = e.clientY + 'px';
+                } else {
+                    glow.style.opacity = '0';
+                }
+            });
+        });
+
+        // Existing Editor Script starts here
         // Default structure
         const DEFAULT_TEMPLATE = {
             webhookUrl: "", username: "Fluxer System", avatar: "https://i.imgur.com/TObDTBk.png",
@@ -1649,13 +2824,16 @@
 
         function saveToLocalStorage() {
             try {
-                localStorage.setItem('fluxer_autosave', JSON.stringify(appState));
-                localStorage.setItem('fluxer_backups', JSON.stringify(backupsData));
-            } catch (e) { }
+                if (typeof localStorage !== 'undefined') {
+                    localStorage.setItem('fluxer_autosave', JSON.stringify(appState));
+                    localStorage.setItem('fluxer_backups', JSON.stringify(backupsData));
+                }
+            } catch (e) { console.error("Storage error:", e); }
         }
 
         function loadFromLocalStorage() {
             try {
+                if (typeof localStorage === 'undefined') return;
                 // Check local storage
                 const saved = localStorage.getItem('fluxer_autosave');
                 if (saved) {
@@ -1670,19 +2848,21 @@
                 if (bStorage) {
                     backupsData = JSON.parse(bStorage);
                 }
-            } catch (e) { }
+            } catch (e) { console.error("Load error:", e); }
         }
 
         // Persistent storage
         async function checkStoragePersistence() {
-            if (navigator.storage && navigator.storage.persist) {
-                const isPersisted = await navigator.storage.persisted();
-                if (!isPersisted) {
-                    document.getElementById('persistWarning').style.display = 'block';
-                } else {
-                    document.getElementById('persistWarning').style.display = 'none';
+            try {
+                if (navigator.storage && navigator.storage.persist && navigator.storage.persisted) {
+                    const isPersisted = await navigator.storage.persisted();
+                    if (!isPersisted) {
+                        document.getElementById('persistWarning').style.display = 'block';
+                    } else {
+                        document.getElementById('persistWarning').style.display = 'none';
+                    }
                 }
-            }
+            } catch (e) { }
         }
 
         async function requestStoragePersistence() {
@@ -1728,8 +2908,8 @@
                             <div class="backup-item-date">${dateStr}</div>
                         </div>
                         <div class="backup-item-actions">
-                            <button class="btn-secondary" style="margin:0; padding: 6px 12px; font-size: 11px;" onclick="loadBackup('${key}')">Load</button>
-                            <button class="btn-danger" style="margin:0; padding: 6px 12px; font-size: 11px;" onclick="deleteBackup('${key}')">🗑️ Delete</button>
+                            <button class="btn-secondary" style="margin:0; padding: 10px 18px; font-size: 13px; border-radius: 99px; width: auto; justify-content: center;" onclick="loadBackup(\`${key.replace(/'/g, "\\'")}\`)">Load</button>
+                            <button class="btn-danger" style="margin:0; padding: 10px 18px; font-size: 13px; border-radius: 99px; width: auto; justify-content: center;" onclick="deleteBackup(\`${key.replace(/'/g, "\\'")}\`)">🗑️ Delete</button>
                         </div>
                     </div>
                 `;
@@ -2287,24 +3467,56 @@
             document.getElementById('saveModal').style.display = 'flex';
         }
 
-        function executeSaveConfig() {
+        async function executeSaveConfig() {
             let filename = document.getElementById('saveFileName').value.trim();
             if (filename === "") filename = "fluxer_config";
-            if (!filename.endsWith(".json")) filename += ".json";
+            if (!filename.toLowerCase().endsWith(".json")) filename += ".json";
 
             let exportData = JSON.parse(JSON.stringify(appState));
-
             if (!document.getElementById('includeWebhookCheckbox').checked) {
                 exportData.webhookUrl = "";
             }
 
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
-            const a = document.createElement('a');
-            a.href = dataStr;
-            a.download = filename;
-            a.click();
+            const jsonContent = JSON.stringify(exportData, null, 2);
 
-            document.getElementById('saveModal').style.display = 'none';
+            // Try modern File System Access API
+            if ('showSaveFilePicker' in window && window.location.protocol !== 'file:') {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: filename,
+                        types: [{
+                            description: 'JSON File',
+                            accept: { 'application/json': ['.json'] },
+                        }],
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(jsonContent);
+                    await writable.close();
+                    document.getElementById('saveModal').style.display = 'none';
+                    return;
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    console.error("FileSystem API failed, falling back...", err);
+                }
+            }
+
+            // Fallback for older browsers or file://
+            try {
+                const blob = new Blob([jsonContent], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 0);
+                document.getElementById('saveModal').style.display = 'none';
+            } catch (err) {
+                alert("Save failed. Your browser might be blocking downloads.");
+            }
         }
 
         function loadConfig(event) {
@@ -2413,4 +3625,3 @@
 </body>
 
 </html>
-
