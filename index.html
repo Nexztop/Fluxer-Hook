@@ -407,6 +407,9 @@
             margin: 0;
             display: block;
             flex-shrink: 0;
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 15px;
         }
 
         .preview-zone::before {
@@ -432,13 +435,6 @@
                 opacity: 1;
                 transform: translate(-50%, -50%) scale(1.1);
             }
-        }
-
-        .fluxer-mock-window {
-            width: 100%;
-            max-width: 800px;
-            margin: auto;
-            display: block;
         }
 
         .f-msg {
@@ -761,6 +757,20 @@
             margin-top: 16px;
             max-height: 400px;
             object-fit: cover;
+        }
+
+        /* File Attachment Rendering */
+        .fe-attachment {
+            margin-top: 8px;
+            max-width: 100%;
+        }
+
+        .fe-attachment img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: #2b2d31;
         }
 
         /* Footer */
@@ -2136,7 +2146,7 @@
             </div>
             <canvas id="particleCanvas"></canvas>
 
-            <div class="lp-hero-tag">An Embed Editor</div>
+            <div class="lp-hero-tag">A Community Studio</div>
             <h1>Crafting better<br>
                 <div class="lp-loop-wrapper">
                     <ul class="lp-loop-list">
@@ -2147,7 +2157,7 @@
                     </ul>
                 </div>
             </h1>
-            <p>The go-to tool for Fluxer users who care about their server's look. Built for the
+            <p>The go-to tool for Fluxer power users who care about their server's look. Built by the community, for the
                 community.</p>
             <div class="lp-hero-btns">
                 <a href="#" class="lp-btn-primary" onclick="launchEditor(event)">Open the Editor</a>
@@ -2214,7 +2224,7 @@
                     <div class="lp-feature-card">
                         <span class="lp-feature-icon">👁️</span>
                         <h3>See It First</h3>
-                        <p>Real-time view that show exactly how your message lands in Fluxer.</p>
+                        <p>Real-time mockups that show exactly how your message lands in Fluxer.</p>
                     </div>
                     <div class="lp-feature-card">
                         <span class="lp-feature-icon">📝</span>
@@ -2239,7 +2249,7 @@
                     <div class="lp-feature-card">
                         <span class="lp-feature-icon">🛠️</span>
                         <h3>By the People</h3>
-                        <p>An open, community-focused project. All the tools you need.</p>
+                        <p>An open, community-centric project. No bloat, just the tools you actually use.</p>
                     </div>
                 </div>
             </div>
@@ -2599,6 +2609,36 @@
                         oninput="updateState('content', this.value)"></textarea>
                 </div>
 
+                <!-- NEW ATTACHMENTS SECTION -->
+                <div class="glass-card">
+                    <label>Attachments (Files) - 25MB Max</label>
+                    <div id="fileListContainer"></div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <input type="file" id="fileInputAttach" style="display: none;" multiple
+                            onchange="handleFileSelect(event)">
+
+                        <button class="btn-secondary" style="flex: 1; justify-content: center; padding: 12px;"
+                            onclick="document.getElementById('fileInputAttach').click()">
+                            <i class="octicon octicon-file"></i> Add Files
+                        </button>
+
+                        <button class="btn-secondary"
+                            style="flex: 0; padding: 12px 20px; text-align: center; justify-content: center;"
+                            onclick="triggerPaste()" title="Or press Ctrl+V anywhere">
+                            Clipboard
+                        </button>
+
+                        <button class="btn-danger" style="flex: 0; border-radius: 99px; padding: 12px 20px;"
+                            onclick="clearFiles()">
+                            Clear
+                        </button>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: 8px;">
+                        You can also quickly paste (Ctrl+V) images directly into the page to attach them.
+                    </div>
+                </div>
+
                 <div id="embedsContainer"></div>
 
                 <button class="btn-secondary" style="justify-content: center; border-style: dashed;"
@@ -2638,6 +2678,9 @@
                             </div>
                             <div class="f-text" id="prevContent"></div>
                             <div id="prevEmbedsContainer"></div>
+                            <!-- NEW ATTACHMENTS PREVIEW -->
+                            <div id="prevAttachmentsContainer"
+                                style="margin-top: 16px; display: flex; flex-direction: column; gap: 16px;"></div>
                         </div>
                     </div>
                 </div>
@@ -2796,11 +2839,11 @@
             // Mouse Glow Interaction
             const glow = document.getElementById('mouseGlow');
             window.addEventListener('mousemove', (e) => {
-                if (document.body.classList.contains('lp-scroll-mode')) {
+                if (document.body.classList.contains('lp-scroll-mode') && glow) {
                     glow.style.opacity = '1';
                     glow.style.left = e.clientX + 'px';
                     glow.style.top = e.clientY + 'px';
-                } else {
+                } else if (glow) {
                     glow.style.opacity = '0';
                 }
             });
@@ -2821,6 +2864,9 @@
         // State and storage handling
         let appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
         let backupsData = {};
+
+        // Non-persisted files for current session
+        let appFiles = [];
 
         function saveToLocalStorage() {
             try {
@@ -2958,6 +3004,7 @@
                     webhookUrl: "", username: "", avatar: "", content: "",
                     embeds: []
                 };
+                clearFiles();
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
@@ -2967,6 +3014,7 @@
         function loadDefaultTemplate() {
             if (confirm("Are you sure you want to load the default template? Your current editor view will be overwritten.")) {
                 appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+                clearFiles();
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
@@ -3206,6 +3254,91 @@
         }
 
 
+        // FILE ATTACHMENTS LOGIC
+
+        function handleFileSelect(e) {
+            if (e.target.files && e.target.files.length > 0) {
+                addFiles(e.target.files);
+            }
+            e.target.value = "";
+        }
+
+        function addFiles(fileList) {
+            for (let i = 0; i < fileList.length; i++) {
+                const file = fileList[i];
+                const objectUrl = URL.createObjectURL(file);
+                appFiles.push({
+                    name: file.name,
+                    type: file.type,
+                    file: file,
+                    objectUrl: objectUrl
+                });
+            }
+            renderEditorFiles();
+            renderPreview();
+        }
+
+        function removeFile(index) {
+            URL.revokeObjectURL(appFiles[index].objectUrl);
+            appFiles.splice(index, 1);
+            renderEditorFiles();
+            renderPreview();
+        }
+
+        function clearFiles() {
+            appFiles.forEach(f => URL.revokeObjectURL(f.objectUrl));
+            appFiles = [];
+            renderEditorFiles();
+            renderPreview();
+        }
+
+        async function triggerPaste() {
+            try {
+                const clipboardItems = await navigator.clipboard.read();
+                let files = [];
+                for (const item of clipboardItems) {
+                    for (const type of item.types) {
+                        if (type.startsWith('image/')) {
+                            const blob = await item.getType(type);
+                            files.push(new File([blob], "pasted_image.png", { type }));
+                        }
+                    }
+                }
+                if (files.length > 0) addFiles(files);
+                else alert("No image found in your clipboard right now.");
+            } catch (err) {
+                alert("Browser blocked direct clipboard access. Try pressing Ctrl+V instead on your keyboard!");
+            }
+        }
+
+        document.addEventListener('paste', (e) => {
+            if (e.clipboardData && e.clipboardData.files.length > 0) {
+                addFiles(e.clipboardData.files);
+            }
+        });
+
+        function renderEditorFiles() {
+            const container = document.getElementById('fileListContainer');
+            if (!container) return;
+            container.innerHTML = "";
+            appFiles.forEach((f, i) => {
+                container.innerHTML += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--glass-border);">
+                        <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; white-space: nowrap;">
+                            ${f.type.startsWith('image/')
+                        ? `<img src="${f.objectUrl}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px; flex-shrink: 0;">`
+                        : `<div style="font-size: 20px; flex-shrink: 0;">📄</div>`}
+                            <span style="font-size: 13px; text-overflow: ellipsis; overflow: hidden; max-width: 300px;">${f.name}</span>
+                        </div>
+                        <button class="btn-icon" style="border-color: rgba(242, 63, 66, 0.3); color: #F23F42; margin: 0; flex-shrink: 0;" onclick="removeFile(${i})">
+                            <i class="octicon octicon-trashcan"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+
         // Render editor UI
         function renderEditor() {
             document.getElementById('webhookUrl').value = appState.webhookUrl || "";
@@ -3297,6 +3430,7 @@
                 container.innerHTML += embedHTML;
             });
 
+            renderEditorFiles();
             renderPreview();
         }
 
@@ -3445,6 +3579,24 @@
                 previewContainer.innerHTML += embedBlockHtml;
             });
 
+            // Handle rendering of attachments at the bottom
+            const attachmentsContainer = document.getElementById('prevAttachmentsContainer');
+            if (attachmentsContainer) {
+                attachmentsContainer.innerHTML = "";
+                appFiles.forEach(f => {
+                    if (f.type.startsWith('image/')) {
+                        attachmentsContainer.innerHTML += `<div class="fe-attachment"><img src="${f.objectUrl}" alt="attachment"></div>`;
+                    } else {
+                        attachmentsContainer.innerHTML += `
+                            <div style="background: #2b2d31; padding: 12px; border-radius: 4px; border: 1px solid #1e1f22; display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; max-width: 400px;">
+                                <span style="font-size: 24px;">📄</span>
+                                <span style="color: #00AFF4; font-size: 14px; text-decoration: none; word-break: break-all;">${f.name}</span>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
             saveToLocalStorage(); // Save changes
         }
 
@@ -3585,15 +3737,31 @@
                 payload.embeds.push(formattedEmbed);
             });
 
-            try {
-                const res = await fetch(proxyUrl, {
-                    method: fetchMethod,
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Target-Url": targetUrl
-                    },
-                    body: JSON.stringify(payload)
+            // Constructing request with conditional Form Data logic
+            let fetchOptions = {
+                method: fetchMethod,
+                headers: {
+                    "X-Target-Url": targetUrl
+                }
+            };
+
+            if (appFiles.length > 0) {
+                // If there are files, we construct a multipart/form-data payload
+                const formData = new FormData();
+                formData.append('payload_json', JSON.stringify(payload));
+
+                appFiles.forEach((f, i) => {
+                    formData.append(`files[${i}]`, f.file, f.name);
                 });
+                fetchOptions.body = formData;
+            } else {
+                // Typical JSON application post
+                fetchOptions.headers["Content-Type"] = "application/json";
+                fetchOptions.body = JSON.stringify(payload);
+            }
+
+            try {
+                const res = await fetch(proxyUrl, fetchOptions);
                 if (res.ok) btn.innerText = "Sent Successfully!";
                 else { alert("Error: " + await res.text()); btn.innerText = "Error (Check URL)"; }
             } catch (err) { alert("Network Error. Check console."); btn.innerText = "Failed"; }
@@ -3625,4 +3793,3 @@
 </body>
 
 </html>
-
