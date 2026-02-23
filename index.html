@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 
     <style>
-        /* --- 1. GLOBAL & APPLE AESTHETICS --- */
+        /* Global Styles */
         :root {
             --bg-deep: #050505;
             --glass-panel: rgba(20, 20, 20, 0.85);
@@ -53,7 +53,7 @@
             pointer-events: none;
         }
 
-        /* --- 2. LAYOUT --- */
+        /* Layout */
         .app-layout {
             display: flex;
             width: 100%;
@@ -171,7 +171,7 @@
             flex: 1;
         }
 
-        /* --- COLOR STUDIO --- */
+        /* Color Studio */
         .color-presets {
             display: flex;
             gap: 8px;
@@ -233,7 +233,7 @@
             position: relative;
         }
 
-        /* --- BUTTONS --- */
+        /* Buttons */
         .btn-primary {
             background: white;
             color: black;
@@ -310,7 +310,7 @@
             gap: 4px;
         }
 
-        /* --- DISCLAIMER --- */
+        /* Disclaimer */
         .disclaimer-area {
             margin-top: 10px;
             background: rgba(242, 63, 66, 0.05);
@@ -336,7 +336,7 @@
             cursor: pointer;
         }
 
-        /* --- 4. PREVIEW ZONE --- */
+        /* Preview Area */
         .preview-zone {
             flex-grow: 1;
             background-color: var(--fluxer-amoled);
@@ -571,7 +571,7 @@
             border: none;
         }
 
-        /* --- EMBED STYLING --- */
+        /* Embed Styles */
         .f-embed {
             margin-top: 8px;
             background-color: #0b0c0e;
@@ -730,7 +730,7 @@
             text-decoration: none;
         }
 
-        /* --- MODALS --- */
+        /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -794,7 +794,7 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Disclaimer Modal Specific */
+        /* Disclaimer Modal */
         #entryModal .modal-box {
             width: 500px;
             text-align: center;
@@ -868,7 +868,7 @@
             white-space: pre-wrap;
         }
 
-        /* The static preview box for the modal guide */
+        /* Guide modal preview */
         .g-math-preview {
             background: #1a1b1e;
             border: 1px solid #2b2d31;
@@ -879,7 +879,7 @@
             text-align: center;
         }
 
-        /* --- APPLE COLOR PICKER MODAL --- */
+        /* Color Picker Modal */
         .cp-modal-box {
             width: 340px;
             background: #1c1c1e;
@@ -949,7 +949,7 @@
             box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
         }
 
-        /* Custom RGB/Hex Inputs inside Color Picker */
+        /* RGB/Hex inputs */
         .cp-manual-inputs {
             display: flex;
             gap: 8px;
@@ -1038,7 +1038,7 @@
             background: #e0e0e0;
         }
 
-        /* --- MOBILE RESPONSIVENESS --- */
+        /* Mobile Styles */
         .fab-toggle {
             display: none;
         }
@@ -1106,7 +1106,7 @@
             }
         }
 
-        /* --- FLOATING DELETE BUTTON --- */
+        /* Floating Actions */
         .fab-delete-container {
             position: fixed;
             top: 20px;
@@ -1168,7 +1168,7 @@
             pointer-events: none;
         }
 
-        /* --- TOP BAR BUTTONS --- */
+        /* Top Bar Buttons */
         .top-btn {
             background: rgba(43, 45, 49, 0.8);
             border: 1px solid rgba(0, 0, 0, 0.4);
@@ -1195,7 +1195,7 @@
             font-size: 18px;
         }
 
-        /* --- BACKUPS MODAL --- */
+        /* Backups Modal */
         .backup-warning {
             background: rgba(240, 177, 50, 0.1);
             border-left: 4px solid #F0B132;
@@ -1596,7 +1596,7 @@
                 <label class="checkbox-wrapper">
                     <input type="checkbox" id="forgiveCheckbox" onchange="toggleSendButton()">
                     <span><strong>Wait!</strong> I understand that this page may have bugs.
-                        
+
                         Please report to @Nolol#0780 on fluxer or Nexztop on discord for any bugs that may occur.</span>
                 </label>
             </div>
@@ -1632,7 +1632,7 @@
     </div>
 
     <script>
-        // --- 0. DEFAULT TEMPLATE DEFINITION ---
+        // Default structure
         const DEFAULT_TEMPLATE = {
             webhookUrl: "", username: "Fluxer System", avatar: "https://i.imgur.com/TObDTBk.png",
             content: "Welcome to Fluxer Webhook Studio Pro! \n\n> [!TIP]\n> This is a default template to show off basic markdown capabilities. Use the `Backups` button above to load your saved configurations or start from an entirely blank slate!",
@@ -1643,7 +1643,7 @@
             }]
         };
 
-        // --- 1. STATE & STORAGE MANAGEMENT ---
+        // State and storage handling
         let appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
         let backupsData = {};
 
@@ -1656,7 +1656,7 @@
 
         function loadFromLocalStorage() {
             try {
-                // Load autosave
+                // Check local storage
                 const saved = localStorage.getItem('fluxer_autosave');
                 if (saved) {
                     const parsed = JSON.parse(saved);
@@ -1665,7 +1665,7 @@
                     appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
                 }
 
-                // Load backups dict
+                // Load backup list
                 const bStorage = localStorage.getItem('fluxer_backups');
                 if (bStorage) {
                     backupsData = JSON.parse(bStorage);
@@ -1673,7 +1673,7 @@
             } catch (e) { }
         }
 
-        // --- 1.5 PERSISTENT STORAGE PERMISSION ---
+        // Persistent storage
         async function checkStoragePersistence() {
             if (navigator.storage && navigator.storage.persist) {
                 const isPersisted = await navigator.storage.persisted();
@@ -1699,7 +1699,7 @@
             }
         }
 
-        // --- 2. BACKUPS UI LOGIC ---
+        // Backups logic
         function openBackupsModal() {
             checkStoragePersistence();
             renderBackupsList();
@@ -1716,7 +1716,7 @@
                 return;
             }
 
-            // Sort by latest added (we don't strictly track dates yet, so we'll just reverse object keys as a proxy)
+            // Sort items
             backupKeys.reverse().forEach(key => {
                 const item = backupsData[key];
                 const dateStr = item._savedAt ? new Date(item._savedAt).toLocaleString() : 'Unknown Date';
@@ -1793,7 +1793,7 @@
             }
         }
 
-        // --- 3. MODAL & KEYBOARD LOGIC ---
+        // UI modal logic
         function closeEntryModal() { document.getElementById('entryModal').style.display = 'none'; }
         function toggleModal() { const m = document.getElementById('guideModal'); m.style.display = (m.style.display === 'flex') ? 'none' : 'flex'; }
 
@@ -1815,7 +1815,7 @@
         });
 
 
-        // --- 3. APPLE COLOR PICKER ENGINE ---
+        // Color picker interactions
         let cpEmbedIndex = -1;
         let cpH = 0, cpS = 0, cpV = 1;
         let isDraggingWheel = false;
@@ -2026,7 +2026,7 @@
         }
 
 
-        // --- 4. EDITOR UI GENERATION ---
+        // Render editor UI
         function renderEditor() {
             document.getElementById('webhookUrl').value = appState.webhookUrl || "";
             document.getElementById('username').value = appState.username || "";
@@ -2120,7 +2120,7 @@
             renderPreview();
         }
 
-        // --- 5. STATE UPDATERS ---
+        // Element change handlers
         function updateState(key, val) { appState[key] = val; renderPreview(); }
         function updateEmbed(eIndex, key, val) { appState.embeds[eIndex][key] = val; renderPreview(); }
         function setEmbedColor(eIndex, hex) { appState.embeds[eIndex].color = hex; renderEditor(); }
@@ -2132,7 +2132,7 @@
         function updateField(eIndex, fIndex, key, val) { appState.embeds[eIndex].fields[fIndex][key] = val; renderPreview(); }
         function removeField(eIndex, fIndex) { appState.embeds[eIndex].fields.splice(fIndex, 1); renderEditor(); }
 
-        // --- 6. MARKDOWN & PREVIEW ENGINE (WITH BULLETPROOF KaTeX) ---
+        // Markdown parser
         function parseFluxerMarkdown(text) {
             if (!text) return "";
             let parsed = text;
@@ -2258,23 +2258,23 @@
                 `;
 
                 if (typeof DOMPurify !== 'undefined') {
-                    // Sanitize the assembled HTML, allowing image/link tags but blocking scripts
+                    // Sanitize html string
                     embedBlockHtml = DOMPurify.sanitize(embedBlockHtml, { ADD_ATTR: ['target', 'rel'] });
                 }
 
                 previewContainer.innerHTML += embedBlockHtml;
             });
 
-            saveToLocalStorage(); // Auto-save whenever preview updates
+            saveToLocalStorage(); // Save changes
         }
 
-        // --- 7. MOBILE VIEW TOGGLE ---
+        // Mobile view logic
         function toggleMobileView() {
             const isPreview = document.body.classList.toggle('show-preview');
             document.getElementById('fabToggle').innerHTML = isPreview ? '<i class="octicon octicon-pencil"></i> Edit' : '<i class="octicon octicon-eye"></i> Preview';
         }
 
-        // --- 8. API & FILE UTILS ---
+        // Form submission
 
         function getCleanWebhookUrl() {
             if (!appState.webhookUrl) return "";
@@ -2337,7 +2337,7 @@
             const targetUrl = cleanWebhookUrl;
             const fetchMethod = "POST";
 
-            // SECURE METHOD: proxy URL doesn't contain the webhook URL in query parameters!
+            // Send webhook request
             const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/";
 
             btn.innerText = "Sending...";
@@ -2378,7 +2378,7 @@
                     method: fetchMethod,
                     headers: {
                         "Content-Type": "application/json",
-                        "X-Target-Url": targetUrl // Pass sensitive URL in a Header instead of query parameter
+                        "X-Target-Url": targetUrl
                     },
                     body: JSON.stringify(payload)
                 });
@@ -2392,15 +2392,15 @@
         function toggleSendButton() { document.getElementById('sendBtn').disabled = !document.getElementById('forgiveCheckbox').checked; }
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadFromLocalStorage(); // Initial load of persistent storage
+            loadFromLocalStorage();
             renderEditor();
-            initColorWheel(); // Generates the wheel visually exactly once
+            initColorWheel();
             try {
                 document.getElementById('staticMathPreview').innerHTML = katex.renderToString("\\int_0^\\infty e^{-x} dx", { displayMode: true });
             } catch (e) { }
         });
 
-        // --- 8. FLOATING DELETE FIXES ---
+        // Floating delete handler
         function toggleFabDelete() {
             const container = document.getElementById('fabDeleteContainer');
             if (container.classList.contains('hidden')) {
@@ -2413,6 +2413,3 @@
 </body>
 
 </html>
-
-
-
