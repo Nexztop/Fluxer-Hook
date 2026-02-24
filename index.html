@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 
     <style>
-        /* Global Styles */
+        /* --- Base Theme Configuration --- */
         * {
             box-sizing: border-box;
         }
@@ -33,9 +33,16 @@
             --fluxer-text: #FFFFFF;
             --fluxer-subtext: #A0A0A0;
             --fluxer-link: #00AFF4;
+
+            /* Core Admonition Colors */
+            --adm-note: #00a8fc;
+            --adm-tip: #23a55a;
+            --adm-important: #a172e2;
+            --adm-warn: #fbb848;
+            --adm-danger: #fa777c;
         }
 
-        /* Custom Scrollbars */
+        /* --- Scrollbars --- */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -81,7 +88,7 @@
             pointer-events: none;
         }
 
-        /* Layout */
+        /* --- Core Layout Architecture --- */
         .app-layout {
             display: flex;
             width: 100%;
@@ -151,6 +158,7 @@
             margin-bottom: 10px;
         }
 
+        /* --- Form Inputs --- */
         label {
             font-size: 11px;
             text-transform: uppercase;
@@ -211,7 +219,7 @@
             flex: 1;
         }
 
-        /* Color Studio */
+        /* --- Color Picker Integrations --- */
         .color-presets {
             display: flex;
             gap: 8px;
@@ -273,7 +281,7 @@
             position: relative;
         }
 
-        /* Buttons */
+        /* --- Unified Buttons --- */
         .btn-primary {
             background: #fff;
             color: #000;
@@ -361,7 +369,6 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Disclaimer */
         .disclaimer-area {
             margin-top: 10px;
             background: rgba(242, 63, 66, 0.05);
@@ -387,7 +394,7 @@
             cursor: pointer;
         }
 
-        /* Preview Area */
+        /* --- Real-Time Preview Renderer --- */
         .preview-zone {
             flex: 1;
             height: 100vh;
@@ -459,6 +466,7 @@
             margin-left: 4px;
         }
 
+        /* --- Base Markdown Elements --- */
         .f-text {
             color: #DBDEE1;
             font-size: 1rem;
@@ -466,7 +474,6 @@
             white-space: pre-wrap;
         }
 
-        /* Markdown Styling */
         .f-text a {
             color: var(--fluxer-link);
             text-decoration: none;
@@ -499,7 +506,29 @@
             color: var(--fluxer-subtext);
         }
 
-        /* Headers */
+        .f-mention {
+            background: rgba(88, 101, 242, 0.3);
+            color: #c9cdfb;
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .f-mention:hover {
+            background: rgba(88, 101, 242, 0.5);
+            text-decoration: underline;
+        }
+
+        .f-timestamp-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0 4px;
+            border-radius: 4px;
+            color: #dbdee1;
+            font-size: 0.95em;
+        }
+
         .f-text h1,
         .fe-desc h1 {
             font-size: 24px;
@@ -542,7 +571,7 @@
             margin-bottom: 0;
         }
 
-        /* Blockquotes & Admonitions */
+        /* Blockquotes */
         blockquote {
             border-left: 4px solid #4F545C;
             margin: 5px 0 5px 0;
@@ -550,60 +579,90 @@
             color: #b5bac1;
         }
 
+        /* --- Admonitions (Note, Tip, Warning, etc.) --- */
+        /* Behave structurally exactly like embeds: no background, tightly wrapped border, identical margin */
         .admonition {
-            border-left: 4px solid #fff;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px 12px;
-            margin: 5px 0;
-            border-radius: 0 8px 8px 0;
+            border-left: 4px solid;
+            padding: 2px 0 2px 12px;
+            margin: 8px 0;
             display: block;
+            background: transparent;
         }
 
         .adm-title {
-            font-weight: bold;
-            display: block;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             margin-bottom: 4px;
-            font-size: 0.9em;
+            font-size: 14px;
+            line-height: 18px;
         }
 
+        .adm-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .adm-body {
+            font-size: 14px;
+            color: #DBDEE1;
+            line-height: 1.375rem;
+        }
+
+        .adm-body p {
+            margin: 0 !important;
+        }
+
+        .adm-body p:not(:last-child) {
+            margin-bottom: 4px !important;
+        }
+
+        .adm-body p:empty {
+            display: none !important;
+        }
+
+        /* Squash any rogue br/p artifacting */
+
         .adm-note {
-            border-color: #5865F2;
+            border-color: var(--adm-note);
         }
 
         .adm-note .adm-title {
-            color: #5865F2;
+            color: var(--adm-note);
         }
 
         .adm-tip {
-            border-color: #23A559;
+            border-color: var(--adm-tip);
         }
 
         .adm-tip .adm-title {
-            color: #23A559;
-        }
-
-        .adm-warn {
-            border-color: #F0B132;
-        }
-
-        .adm-warn .adm-title {
-            color: #F0B132;
-        }
-
-        .adm-danger {
-            border-color: #F23F42;
-        }
-
-        .adm-danger .adm-title {
-            color: #F23F42;
+            color: var(--adm-tip);
         }
 
         .adm-important {
-            border-color: #9B59B6;
+            border-color: var(--adm-important);
         }
 
         .adm-important .adm-title {
-            color: #9B59B6;
+            color: var(--adm-important);
+        }
+
+        .adm-warn {
+            border-color: var(--adm-warn);
+        }
+
+        .adm-warn .adm-title {
+            color: var(--adm-warn);
+        }
+
+        .adm-danger {
+            border-color: var(--adm-danger);
+        }
+
+        .adm-danger .adm-title {
+            color: var(--adm-danger);
         }
 
         /* Code Blocks */
@@ -631,7 +690,7 @@
             border: none;
         }
 
-        /* Embed Styles */
+        /* --- Embed Construction Layout --- */
         .f-embed {
             margin-top: 8px;
             background-color: #0b0c0e;
@@ -646,7 +705,6 @@
             flex-direction: column;
         }
 
-        /* Author Block */
         .fe-author {
             display: flex;
             align-items: center;
@@ -717,7 +775,6 @@
             text-decoration: underline;
         }
 
-        /* Images & Thumbnails */
         .fe-thumbnail {
             width: 80px;
             height: 80px;
@@ -734,7 +791,6 @@
             object-fit: cover;
         }
 
-        /* File Attachment Rendering */
         .fe-attachment {
             margin-top: 8px;
             max-width: 100%;
@@ -748,7 +804,6 @@
             background: #2b2d31;
         }
 
-        /* Footer */
         .fe-footer {
             display: flex;
             align-items: center;
@@ -769,7 +824,6 @@
             font-weight: 500;
         }
 
-        /* Grid Fields */
         .fe-fields {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -804,7 +858,7 @@
             text-decoration: none;
         }
 
-        /* Modals */
+        /* --- Modals & Overlays --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -823,7 +877,8 @@
         .modal-box {
             background: rgba(10, 10, 10, 0.9);
             border: 1px solid var(--glass-border);
-            width: 700px;
+            width: 800px;
+            /* Widened to display full code cells clearly */
             max-width: 95%;
             max-height: 85vh;
             overflow-y: auto;
@@ -851,7 +906,7 @@
         }
 
         .modal-body {
-            padding: 30px;
+            padding: 30px 40px;
         }
 
         .close-btn {
@@ -870,82 +925,61 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Disclaimer Modal */
-        #entryModal .modal-box {
-            width: 500px;
-            text-align: center;
-            padding: 40px;
-        }
-
-        #entryModal h2 {
-            margin-top: 0;
-            font-size: 24px;
-        }
-
-        #entryModal p {
-            color: #ccc;
-            line-height: 1.6;
-            font-size: 15px;
-            margin-bottom: 30px;
-        }
-
+        /* Guide Specific Container Grid */
         .g-section {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .g-title {
-            font-size: 18px;
+            font-size: 20px;
             color: var(--accent);
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-weight: 800;
+            margin-bottom: 15px;
             border-bottom: 1px solid #222;
-            padding-bottom: 5px;
+            padding-bottom: 8px;
         }
 
-        .g-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
+        .g-desc {
             color: #ccc;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
         }
 
-        .g-table td {
-            padding: 8px 5px;
-            border-bottom: 1px solid #1a1a1a;
-            vertical-align: top;
-        }
-
-        .g-table td:first-child {
-            font-family: monospace;
-            color: #fff;
-            width: 45%;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-        }
-
-        .g-note {
-            background: rgba(58, 130, 247, 0.1);
-            border-left: 3px solid var(--accent);
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 13px;
-            color: #ddd;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .g-code {
-            background: #000;
-            padding: 12px;
+        .g-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            font-family: monospace;
-            margin-top: 5px;
-            border: 1px solid #222;
-            display: block;
-            color: #a6accd;
-            white-space: pre-wrap;
+            padding: 12px;
+            align-items: stretch;
         }
 
-        /* Guide modal preview */
+        .g-cell {
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .g-code-col {
+            background: #111214;
+            color: #a6accd;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #1e1f22;
+        }
+
+        .g-res-col {
+            background: #1e1f22;
+            color: #dbdee1;
+            border: 1px solid #2b2d31;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
         .g-math-preview {
             background: #1a1b1e;
             border: 1px solid #2b2d31;
@@ -956,7 +990,7 @@
             text-align: center;
         }
 
-        /* Color Picker Modal */
+        /* Modal Subcomponent: Color Wheel */
         .cp-modal-box {
             width: 340px;
             background: rgba(15, 15, 15, 0.85);
@@ -1028,7 +1062,6 @@
             box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
         }
 
-        /* RGB/Hex inputs */
         .cp-manual-inputs {
             display: flex;
             gap: 8px;
@@ -1121,7 +1154,7 @@
             transform: translateY(-2px);
         }
 
-        /* Mobile Styles */
+        /* --- Mobile Breakpoints --- */
         .fab-toggle {
             display: none;
         }
@@ -1192,7 +1225,7 @@
             }
         }
 
-        /* Floating Actions */
+        /* --- Global Floating Actions --- */
         .fab-delete-container {
             position: fixed;
             top: 20px;
@@ -1256,7 +1289,6 @@
             pointer-events: none;
         }
 
-        /* Top Bar Buttons */
         .top-btn {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--glass-border);
@@ -1286,7 +1318,7 @@
             font-size: 18px;
         }
 
-        /* Backups Modal */
+        /* --- Local Backups Interface --- */
         .backup-warning {
             background: rgba(240, 177, 50, 0.1);
             border-left: 4px solid #F0B132;
@@ -1354,7 +1386,7 @@
             margin-bottom: 20px;
         }
 
-        /* Landing Page Base */
+        /* --- Base Landing Page States --- */
         body.lp-scroll-mode {
             overflow-y: auto !important;
             height: auto !important;
@@ -1391,7 +1423,6 @@
             height: 100vh;
         }
 
-        /* Futuristic & Roundier Transitions */
         .lp-fade-out {
             opacity: 0;
             transform: scale(1.02);
@@ -1399,7 +1430,6 @@
             pointer-events: none;
         }
 
-        /* Nav */
         .lp-nav {
             position: fixed;
             top: 24px;
@@ -1491,7 +1521,7 @@
             box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
         }
 
-        /* Hero */
+        /* Landing Page Internal Modules */
         .lp-hero {
             position: relative;
             min-height: 100vh;
@@ -1583,8 +1613,6 @@
             align-items: center;
         }
 
-
-
         .lp-loop-list {
             list-style: none;
             padding: 0;
@@ -1670,7 +1698,6 @@
             transform: translateY(-4px);
         }
 
-        /* Editor Preview Window Mock */
         .lp-editor-preview {
             margin-top: 80px;
             width: 90%;
@@ -1779,19 +1806,6 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
-        @keyframes pulseGlow {
-
-            0%,
-            100% {
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            }
-
-            50% {
-                box-shadow: 0 20px 40px rgba(58, 130, 247, 0.15);
-            }
-        }
-
-        /* Capabilities Marquee */
         .lp-marquee-section {
             padding: 100px 0;
             background: var(--bg-deep);
@@ -1857,7 +1871,6 @@
             filter: grayscale(0);
         }
 
-        /* Features */
         .lp-features-section {
             padding: 140px 24px;
             background: #050505;
@@ -1955,7 +1968,6 @@
             margin: 0;
         }
 
-        /* Stats */
         .lp-stats-section {
             padding: 100px 24px;
             background: #000;
@@ -1989,7 +2001,6 @@
             letter-spacing: 0.1em;
         }
 
-        /* Final CTA */
         .lp-cta-section {
             padding: 160px 24px;
             text-align: center;
@@ -2005,7 +2016,6 @@
             color: #fff;
         }
 
-        /* Footer */
         .lp-footer {
             padding: 80px 24px 48px;
             background: #000;
@@ -2039,7 +2049,6 @@
             margin: 0 auto;
         }
 
-        /* Response */
         @media (max-width: 768px) {
             .lp-nav {
                 width: 95%;
@@ -2091,8 +2100,7 @@
 
 <body>
 
-
-
+    <!-- Landing Page Initialization -->
     <div class="landing-page" id="landingPage">
         <nav class="lp-nav" id="lpNav">
             <a href="#" class="lp-brand">
@@ -2139,7 +2147,6 @@
                 <a href="#features" class="lp-btn-outline">See Features</a>
             </div>
 
-            <!-- Editor Preview Mockup -->
             <div class="lp-editor-preview">
                 <div class="lp-preview-chrome">
                     <div class="lp-chrome-dot lp-dot-red"></div>
@@ -2175,7 +2182,6 @@
             </div>
         </section>
 
-        <!-- What You Can Do Section -->
         <section class="lp-marquee-section">
             <div class="lp-marquee" id="marqueeContent">
                 <div class="lp-capability"><span class="lp-cap-icon">⚡</span> Dynamic Embeds</div>
@@ -2263,13 +2269,13 @@
         </footer>
     </div>
 
-    <!-- Wrapping Editor Components -->
+    <!-- Active Editor Workspace Module -->
     <div class="editor-wrapper" id="editorWrapper">
         <div class="glow-spot"></div>
         <button class="fab-toggle" id="fabToggle" onclick="toggleMobileView()"><i class="octicon octicon-eye"></i>
             Preview</button>
 
-
+        <!-- Save Config File Download Setup -->
         <div class="modal-overlay" id="saveModal" onmousedown="handleModalMouseDown(event)"
             onmouseup="handleModalMouseUp(event, 'saveModal')">
             <div class="modal-box" style="width: 400px; padding: 30px;">
@@ -2300,120 +2306,331 @@
             </div>
         </div>
 
+        <!-- Markdown Reference Modal -->
         <div class="modal-overlay" id="guideModal" onmousedown="handleModalMouseDown(event)"
             onmouseup="handleModalMouseUp(event, 'guideModal')">
             <div class="modal-box">
                 <div class="modal-header">
-                    <h2 style="margin:0; font-size:18px;">Markdown & LaTeX Guide</h2>
+                    <h2 style="margin:0; font-size:18px;">The Simple Markdown Collection</h2>
                     <button class="close-btn" onclick="toggleModal()">×</button>
                 </div>
                 <div class="modal-body">
-                    <div class="g-section">
-                        <div class="g-title">Headers & Formatting</div>
-                        <table class="g-table">
-                            <tr>
-                                <td># Heading 1</td>
-                                <td>
-                                    <h1 style="margin:0; font-size:22px; line-height:1; color:white;">Heading 1</h1>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>## Heading 2</td>
-                                <td>
-                                    <h2 style="margin:0; font-size:18px; line-height:1; color:white;">Heading 2</h2>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>### Heading 3</td>
-                                <td>
-                                    <h3 style="margin:0; font-size:15px; line-height:1; color:white;">Heading 3</h3>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>**bold**</td>
-                                <td><strong>Bold</strong></td>
-                            </tr>
-                            <tr>
-                                <td>*italic*</td>
-                                <td><em>Italic</em></td>
-                            </tr>
-                            <tr>
-                                <td>__underlined__</td>
-                                <td><u>Underlined</u></td>
-                            </tr>
-                            <tr>
-                                <td>~~strike~~</td>
-                                <td><s>Strikethrough</s></td>
-                            </tr>
-                            <tr>
-                                <td>||spoiler||</td>
-                                <td><span class="spoiler">Hidden Spoiler</span></td>
-                            </tr>
-                            <tr>
-                                <td>`code`</td>
-                                <td>Inline Code</td>
-                            </tr>
-                            <tr>
-                                <td>-# text</td>
-                                <td><span style="font-size: 0.8em; color: var(--fluxer-subtext)">Small subtext</span>
-                                </td>
-                            </tr>
-                        </table>
+                    <div class="admonition adm-note" style="margin-top: 0; margin-bottom: 30px;">
+                        <div class="adm-title">
+                            <svg class="adm-icon" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                            </svg> Note
+                        </div>
+                        <div class="adm-body">
+                            <p>If you have something to add please let me know!</p>
+                        </div>
                     </div>
+
                     <div class="g-section">
-                        <div class="g-title">Block Elements & Admonitions</div>
-                        <table class="g-table">
-                            <tr>
-                                <td>> text</td>
-                                <td>Single line quote</td>
-                            </tr>
-                            <tr>
-                                <td>>>> text</td>
-                                <td>Multiline quote</td>
-                            </tr>
-                            <tr>
-                                <td>> [!NOTE]<br>Text</td>
-                                <td><span
-                                        style="color:#5865F2; font-weight:bold; border-left: 3px solid #5865F2; padding-left: 5px;">Note</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>> [!TIP]<br>Text</td>
-                                <td><span
-                                        style="color:#23A559; font-weight:bold; border-left: 3px solid #23A559; padding-left: 5px;">Tip</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>> [!IMPORTANT]<br>Text</td>
-                                <td><span
-                                        style="color:#9B59B6; font-weight:bold; border-left: 3px solid #9B59B6; padding-left: 5px;">Important</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>> [!WARNING]<br>Text</td>
-                                <td><span
-                                        style="color:#F0B132; font-weight:bold; border-left: 3px solid #F0B132; padding-left: 5px;">Warning</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>> [!CAUTION]<br>Text</td>
-                                <td><span
-                                        style="color:#F23F42; font-weight:bold; border-left: 3px solid #F23F42; padding-left: 5px;">Caution</span>
-                                </td>
-                            </tr>
-                        </table>
+                        <div class="g-title">Shortcuts</div>
+                        <div class="g-desc">
+                            CTRL+G → Gif<br>
+                            CTRL+M → Media<br>
+                            CTRL+S → Stickers<br>
+                            CTRL+E → Emoji
+                        </div>
                     </div>
+
                     <div class="g-section">
-                        <div class="g-title">LaTeX (Math)</div>
-                        <div class="g-note">Fluxer supports complex LaTeX math formulas. Wrap them in a code block with
-                            `latex`.</div>
-                        <div class="g-code">```latex<br>\int_0^\infty e^{-x} dx<br>```</div>
-                        <div class="g-math-preview" id="staticMathPreview"></div>
+                        <div class="g-title">Emojis</div>
+                        <div class="g-desc">
+                            <code>:smile:</code> → shows 😊<br>
+                            1–6 emojis in a row without text → render bigger (“jumbo”)
+                        </div>
                     </div>
+
+                    <div class="g-section">
+                        <div class="g-title">Formatting</div>
+                        <div class="g-grid">
+                            <div class="g-cell g-code-col">**bold**</div>
+                            <div class="g-cell g-res-col"><strong>bold</strong></div>
+
+                            <div class="g-cell g-code-col">*italic*</div>
+                            <div class="g-cell g-res-col"><em>italic</em></div>
+
+                            <div class="g-cell g-code-col">__underlined__</div>
+                            <div class="g-cell g-res-col"><u>underlined</u></div>
+
+                            <div class="g-cell g-code-col">~~strikethrough~~</div>
+                            <div class="g-cell g-res-col"><s>strikethrough</s></div>
+
+                            <div class="g-cell g-code-col">||spoiler||</div>
+                            <div class="g-cell g-res-col"><span class="spoiler">spoiler</span></div>
+                        </div>
+                    </div>
+
+                    <div class="g-section">
+                        <div class="g-title">Links / Mentions</div>
+                        <div class="g-grid">
+                            <div class="g-cell g-code-col">[text](https://example.com)</div>
+                            <div class="g-cell g-res-col"><a href="https://example.com"
+                                    style="color: var(--fluxer-link);">text</a></div>
+
+                            <div class="g-cell g-code-col">&lt;https://example.com&gt;</div>
+                            <div class="g-cell g-res-col"><a href="https://example.com"
+                                    style="color: var(--fluxer-link);">https://example.com</a></div>
+                        </div>
+
+                        <div class="admonition adm-note" style="margin: 15px 0;">
+                            <div class="adm-title">
+                                <svg class="adm-icon" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                                </svg> Note
+                            </div>
+                            <div class="adm-body">
+                                <p>If you write a direct link with &lt;link&gt; you also supress any embed/infobox</p>
+                            </div>
+                        </div>
+
+                        <div class="g-grid">
+                            <div class="g-cell g-code-col">&lt;user@example.com&gt;</div>
+                            <div class="g-cell g-res-col"><a href="mailto:user@example.com"
+                                    style="color: var(--fluxer-link);">user@example.com</a></div>
+
+                            <div class="g-cell g-code-col">&lt;+1234567890&gt;</div>
+                            <div class="g-cell g-res-col"><a href="tel:+1234567890"
+                                    style="color: var(--fluxer-link);">+1234567890</a></div>
+
+                            <div class="g-cell g-code-col">&lt;sms:+1234567890&gt;</div>
+                            <div class="g-cell g-res-col"><a href="sms:+1234567890"
+                                    style="color: var(--fluxer-link);">sms:+1234567890</a></div>
+
+                            <div class="g-cell g-code-col">&lt;@username&gt; or &lt;@!user&gt;</div>
+                            <div class="g-cell g-res-col"><span class="f-mention">@username</span></div>
+
+                            <div class="g-cell g-code-col">&lt;/name:id&gt; or &lt;/kick user:12345&gt;</div>
+                            <div class="g-cell g-res-col"><span class="f-mention">/name</span></div>
+
+                            <div class="g-cell g-code-col">&lt;@&amp;role&gt;</div>
+                            <div class="g-cell g-res-col"><span class="f-mention">@role</span></div>
+
+                            <div class="g-cell g-code-col">&lt;#channel&gt;</div>
+                            <div class="g-cell g-res-col"><span class="f-mention">#channel</span></div>
+                        </div>
+                        <div class="g-desc" style="margin-top: 15px;">
+                            <strong>No spaces between:</strong><br>
+                            <code>@everyone</code> → mention everyone, please only use it for really important
+                            announcements<br>
+                            <code>@here</code> → mention only those who are currently online
+                        </div>
+                    </div>
+
+                    <div class="g-section">
+                        <div class="g-title">Community Navigation</div>
+                        <div class="g-desc">
+                            <code>&lt;id:customize&gt;</code> → Basic navigation (no ID)<br>
+                            <code>&lt;id:linked-roles:123456&gt;</code> → Linked roles navigation (specific Community
+                            ID)<br><br>
+                            customize = GuildNavKind.Customize<br>
+                            browse = GuildNavKind.Browse<br>
+                            guide = GuildNavKind.Guide<br>
+                            linked-roles = GuildNavKind.LinkedRoles
+                        </div>
+                    </div>
+
+                    <div class="g-section">
+                        <div class="g-title">Code</div>
+                        <div class="g-grid">
+                            <div class="g-cell g-code-col">`inline code`</div>
+                            <div class="g-cell g-res-col"><code>inline code</code></div>
+
+                            <div class="g-cell g-code-col">```code-language<br>code<br>```</div>
+                            <div class="g-cell g-res-col">
+                                <pre><code>code</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="g-section">
+                        <div class="g-title">LaTeX</div>
+                        <div class="admonition adm-tip" style="margin-bottom: 15px;">
+                            <div class="adm-title">
+                                <svg class="adm-icon" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                        d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zM9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1z" />
+                                </svg> Tip
+                            </div>
+                            <div class="adm-body">
+                                <p>Unlike Discord, Fluxer supports LaTeX. LaTeX is more complex than regular text
+                                    formatting, but you can find more information here: <a
+                                        href="https://en.wikipedia.org/wiki/LaTeX"
+                                        style="color: var(--fluxer-link);">https://en.wikipedia.org/wiki/LaTeX</a>.</p>
+                            </div>
+                        </div>
+                        <div class="g-grid">
+                            <div class="g-cell g-code-col">```latex<br>\int_0^\infty e^{-x} dx<br>```</div>
+                            <div class="g-cell g-res-col">
+                                <div class="g-math-preview" id="staticMathPreview"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="g-section">
+                        <div class="g-title">Block Elements</div>
+                        <div class="g-grid">
+                            <div class="g-cell g-code-col">> singlequote</div>
+                            <div class="g-cell g-res-col">
+                                <blockquote>singlequote</blockquote>
+                            </div>
+
+                            <div class="g-cell g-code-col">>>> this is a<br>multiline Quote</div>
+                            <div class="g-cell g-res-col">
+                                <blockquote>this is a<br>multiline Quote</blockquote>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="g-section">
+                        <div class="g-title">Headings & Lists</div>
+                        <div class="g-grid">
+                            <div class="g-cell g-code-col"># Heading 1<br>#### Heading 4</div>
+                            <div class="g-cell g-res-col">
+                                <h1 style="color:white; margin:0 0 5px 0;">Heading 1</h1>
+                                <h4 style="color:white; margin:0;">Heading 4</h4>
+                            </div>
+
+                            <div class="g-cell g-code-col">- item1<br>- item2</div>
+                            <div class="g-cell g-res-col">
+                                <ul style="margin:0; padding-left:20px;">
+                                    <li>item1</li>
+                                    <li>item2</li>
+                                </ul>
+                            </div>
+
+                            <div class="g-cell g-code-col">1. abc<br>1. def<br>1. ghi</div>
+                            <div class="g-cell g-res-col">
+                                <ol style="margin:0; padding-left:20px;">
+                                    <li>abc</li>
+                                    <li>def</li>
+                                    <li>ghi</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="g-section">
+                        <div class="g-title">Highlights (Admonitions)</div>
+                        <div class="g-desc">These dont work in Discord natively, but work here:</div>
+                        <div class="g-grid" style="grid-template-columns: 1fr;">
+                            <div class="g-cell g-code-col">> [!NOTE] text</div>
+                            <div class="g-cell g-res-col">
+                                <div class="admonition adm-note">
+                                    <div class="adm-title"><svg class="adm-icon" viewBox="0 0 24 24">
+                                            <path fill="currentColor"
+                                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                                        </svg> Note</div>
+                                    <div class="adm-body">
+                                        <p>text</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="g-cell g-code-col">> [!TIP] text</div>
+                            <div class="g-cell g-res-col">
+                                <div class="admonition adm-tip">
+                                    <div class="adm-title"><svg class="adm-icon" viewBox="0 0 24 24">
+                                            <path fill="currentColor"
+                                                d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zM9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1z" />
+                                        </svg> Tip</div>
+                                    <div class="adm-body">
+                                        <p>text</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="g-cell g-code-col">> [!IMPORTANT] text</div>
+                            <div class="g-cell g-res-col">
+                                <div class="admonition adm-important">
+                                    <div class="adm-title"><svg class="adm-icon" viewBox="0 0 24 24">
+                                            <path fill="currentColor"
+                                                d="M12 2L1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                                        </svg> Important</div>
+                                    <div class="adm-body">
+                                        <p>text</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="g-cell g-code-col">> [!WARNING] text</div>
+                            <div class="g-cell g-res-col">
+                                <div class="admonition adm-warn">
+                                    <div class="adm-title"><svg class="adm-icon" viewBox="0 0 24 24">
+                                            <path fill="currentColor"
+                                                d="M12 2L1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                                        </svg> Warning</div>
+                                    <div class="adm-body">
+                                        <p>text</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="g-cell g-code-col">> [!CAUTION] text</div>
+                            <div class="g-cell g-res-col">
+                                <div class="admonition adm-danger">
+                                    <div class="adm-title"><svg class="adm-icon" viewBox="0 0 24 24">
+                                            <path fill="currentColor"
+                                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                                        </svg> Caution</div>
+                                    <div class="adm-body">
+                                        <p>text</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="g-section">
+                        <div class="g-title">Timestamps</div>
+                        <div class="g-grid">
+                            <div class="g-cell g-code-col">&lt;t:1183165200:R&gt;</div>
+                            <div class="g-cell g-res-col"><span class="f-timestamp-badge">18 years ago</span></div>
+
+                            <div class="g-cell g-code-col">&lt;t:1183165200:T&gt;</div>
+                            <div class="g-cell g-res-col"><span class="f-timestamp-badge">6:00:00 PM</span></div>
+
+                            <div class="g-cell g-code-col">&lt;t:1183165200:d&gt;</div>
+                            <div class="g-cell g-res-col"><span class="f-timestamp-badge">6/29/2007</span></div>
+
+                            <div class="g-cell g-code-col">&lt;t:1183165200:D&gt;</div>
+                            <div class="g-cell g-res-col"><span class="f-timestamp-badge">June 29, 2007</span></div>
+                        </div>
+                        <div class="g-desc" style="margin-top: 10px;">For that use a service like epochconverter.com
+                        </div>
+                    </div>
+
+                    <div class="g-section">
+                        <div class="g-title">Bonus: Small Letters</div>
+
+                        <div class="g-desc" style="margin-bottom: 8px;">copy-paste always small:</div>
+                        <div class="g-code-col"
+                            style="padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; line-height: 1.6;">
+                            ⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁺ ⁻ ⁼ ⁽ ⁾
+                            ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ q ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ
+                            ᴬ ᴮ ᶜ ᴰ ᴱ ᶠ ᴳ ᴴ ᴵ ᴶ ᴷ ᴸ ᴹ ᴺ ᴼ ᴾ Q ᴿ ˢ ᵀ ᵁ ᵛ ᵂ</div>
+
+                        <div class="g-desc" style="margin-bottom: 8px;">Or use regular text in this form:</div>
+                        <div class="g-grid">
+                            <div class="g-cell g-code-col">-# my small text</div>
+                            <div class="g-cell g-res-col">
+                                <div class="small-text">my small text</div>
+                            </div>
+                        </div>
+                        <div class="g-desc" style="margin-top: 10px;">To see how a message was formatted, copy it using
+                            the message options.</div>
+                    </div>
+
                 </div>
             </div>
         </div>
 
+        <!-- Custom Color Utility -->
         <div class="modal-overlay" id="colorPickerModal" onmousedown="handleModalMouseDown(event)"
             onmouseup="handleModalMouseUp(event, 'colorPickerModal')">
             <div class="cp-modal-box" onmousedown="event.stopPropagation()" onmouseup="event.stopPropagation()">
@@ -2456,6 +2673,7 @@
             </div>
         </div>
 
+        <!-- System File Backups Hub -->
         <div class="modal-overlay" id="backupsModal" onmousedown="handleModalMouseDown(event)"
             onmouseup="handleModalMouseUp(event, 'backupsModal')">
             <div class="modal-box">
@@ -2465,7 +2683,6 @@
                         onclick="document.getElementById('backupsModal').style.display='none'">×</button>
                 </div>
                 <div class="modal-body">
-
                     <div class="backup-warning" id="persistWarning">
                         <h3
                             style="margin:0 0 5px 0; color:#F0B132; font-size:15px; display:flex; gap:6px; align-items:center;">
@@ -2480,8 +2697,7 @@
                             onclick="document.getElementById('persistWarning').style.display='none'">Dismiss</button>
                     </div>
 
-                    <div id="backupsList">
-                    </div>
+                    <div id="backupsList"></div>
 
                     <div
                         style="display: flex; gap: 10px; justify-content: space-between; border-top: 1px solid var(--glass-border); padding-top: 20px;">
@@ -2495,6 +2711,7 @@
             </div>
         </div>
 
+        <!-- Store New Revision Config -->
         <div class="modal-overlay" id="saveBackupModal" style="z-index: 1001;" onmousedown="handleModalMouseDown(event)"
             onmouseup="handleModalMouseUp(event, 'saveBackupModal')">
             <div class="modal-box" style="width: 400px; padding: 30px;">
@@ -2514,6 +2731,7 @@
             </div>
         </div>
 
+        <!-- Main Workspace Frame -->
         <div class="app-layout">
             <div class="editor-zone" id="editorZone">
                 <div class="top-header">
@@ -2540,23 +2758,19 @@
                             <span class="top-btn-icon">💾</span>
                             <span>Save</span>
                         </button>
-                        <div style="display: none;">
-                            <button class="btn-icon" onclick="document.getElementById('fileInput').click()"
-                                title="Load Config File">📥 Load</button>
-                            <button class="btn-icon" onclick="saveConfig()" title="Export Config File">💾 Save</button>
-                        </div>
                         <input type="file" id="fileInput" accept=".json" style="display: none;"
                             onchange="loadConfig(event)">
                     </div>
                 </div>
 
                 <div style="display: flex; gap: 10px;">
-                    <button class="btn-secondary" onclick="toggleModal()"
-                        style="flex: 1; justify-content: center;"><span>📝
-                            Markdown Guide</span></button>
+                    <button class="btn-secondary" onclick="toggleModal()" style="flex: 1; justify-content: center;">
+                        <span>📝 Markdown Guide</span>
+                    </button>
                     <button class="btn-secondary" onclick="promptSaveBackup()"
-                        style="flex: 1; justify-content: center; background: rgba(58, 130, 247, 0.1); border-color: rgba(58, 130, 247, 0.3); color: white;"><span><i
-                                class="octicon octicon-cloud-upload"></i> Save to Backups</span></button>
+                        style="flex: 1; justify-content: center; background: rgba(58, 130, 247, 0.1); border-color: rgba(58, 130, 247, 0.3); color: white;">
+                        <span><i class="octicon octicon-cloud-upload"></i> Save to Backups</span>
+                    </button>
                 </div>
 
                 <div class="glass-card">
@@ -2584,7 +2798,7 @@
                         oninput="updateState('content', this.value)"></textarea>
                 </div>
 
-                <!-- NEW ATTACHMENTS SECTION -->
+                <!-- Live File Upload Processing -->
                 <div class="glass-card">
                     <label>Attachments (Files) - 25MB Max</label>
                     <div id="fileListContainer"></div>
@@ -2622,10 +2836,8 @@
                 <div class="disclaimer-area">
                     <label class="checkbox-wrapper">
                         <input type="checkbox" id="forgiveCheckbox" onchange="toggleSendButton()">
-                        <span><strong>Wait!</strong> I understand that this page may have bugs.
-
-                            Please report to @Nolol#0780 on fluxer or Nexztop on discord for any bugs that may
-                            occur.</span>
+                        <span><strong>Wait!</strong> I understand that this page may have bugs. Please report to
+                            @Nolol#0780 on fluxer or Nexztop on discord for any bugs that may occur.</span>
                     </label>
                 </div>
 
@@ -2641,6 +2853,7 @@
                 </button>
             </div>
 
+            <!-- Webhook Render Target -->
             <div class="preview-zone">
                 <div class="fluxer-mock-window">
                     <div class="f-msg">
@@ -2653,7 +2866,6 @@
                             </div>
                             <div class="f-text" id="prevContent"></div>
                             <div id="prevEmbedsContainer"></div>
-                            <!-- NEW ATTACHMENTS PREVIEW -->
                             <div id="prevAttachmentsContainer"
                                 style="margin-top: 16px; display: flex; flex-direction: column; gap: 16px;"></div>
                         </div>
@@ -2663,26 +2875,20 @@
         </div>
     </div>
 
-
     <script>
-        // Landing Page Specific Logic
+        // --- Navigation and Scroll Handlers ---
         function launchEditor(e) {
             if (e) e.preventDefault();
             const lp = document.getElementById('landingPage');
             const wrapper = document.getElementById('editorWrapper');
             const glow = document.getElementById('mouseGlow');
 
-            // Stop mouse glow immediately
-            if (glow) {
-                glow.style.display = 'none';
-            }
+            if (glow) { glow.style.display = 'none'; }
 
             lp.classList.add('lp-fade-out');
 
-            // Transition Glow Swell
             const swell = document.createElement('div');
             swell.style.position = 'fixed';
-            // Start swell from mouse position for a more integrated feel
             const startX = e && e.clientX ? e.clientX : window.innerWidth / 2;
             const startY = e && e.clientY ? e.clientY : window.innerHeight / 2;
 
@@ -2712,16 +2918,11 @@
             }, 600);
         }
 
-        // Sticky Nav & Scroll Effects
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('lpNav');
-            if (window.scrollY > 50) {
-                nav.classList.add('scrolled');
-            } else {
-                nav.classList.remove('scrolled');
-            }
+            if (window.scrollY > 50) { nav.classList.add('scrolled'); }
+            else { nav.classList.remove('scrolled'); }
 
-            // Feature Card Reveal on Scroll
             const cards = document.querySelectorAll('.lp-feature-card');
             cards.forEach(card => {
                 const rect = card.getBoundingClientRect();
@@ -2731,7 +2932,6 @@
                 }
             });
 
-            // Stats Counter (supports textual stats and numeric animation)
             const stats = document.querySelectorAll('.lp-stat-number');
             stats.forEach(stat => {
                 const rect = stat.getBoundingClientRect();
@@ -2740,7 +2940,6 @@
                     const suffix = stat.getAttribute('data-suffix') || '';
                     const text = stat.getAttribute('data-text') || stat.textContent.trim();
 
-                    // If a numeric data-target exists, animate numbers (supports decimals)
                     if (targetAttr !== null && targetAttr !== '' && !isNaN(parseFloat(targetAttr))) {
                         const target = parseFloat(targetAttr);
                         const decimalPlaces = (targetAttr.indexOf('.') !== -1) ? targetAttr.split('.')[1].length : 0;
@@ -2757,16 +2956,14 @@
                             }
                         }, 20);
                     } else {
-                        // Non-numeric: show provided text
                         stat.innerText = text;
                     }
-
                     stat.classList.add('counted');
                 }
             });
         });
 
-        // Particles Canvas
+        // Initialize Background Systems
         const canvas = document.getElementById('particleCanvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');
@@ -2789,8 +2986,7 @@
             function animateParticles() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 particles.forEach(p => {
-                    p.x += p.speedX;
-                    p.y += p.speedY;
+                    p.x += p.speedX; p.y += p.speedY;
                     if (p.x < 0) p.x = canvas.width;
                     if (p.x > canvas.width) p.x = 0;
                     if (p.y < 0) p.y = canvas.height;
@@ -2807,11 +3003,8 @@
             animateParticles();
         }
 
-        // Set Initial Mode
         document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('lp-scroll-mode');
-
-            // Mouse Glow Interaction
             const glow = document.getElementById('mouseGlow');
             window.addEventListener('mousemove', (e) => {
                 if (document.body.classList.contains('lp-scroll-mode') && glow) {
@@ -2824,8 +3017,7 @@
             });
         });
 
-        // Existing Editor Script starts here
-        // Default structure
+        // --- Core Application State ---
         const DEFAULT_TEMPLATE = {
             webhookUrl: "", username: "Fluxer System", avatar: "https://i.imgur.com/TObDTBk.png",
             content: "Welcome to Fluxer Webhook Studio Pro! \n\n> [!TIP]\n> This is a default template to show off basic markdown capabilities. Use the `Backups` button above to load your saved configurations or start from an entirely blank slate!",
@@ -2836,12 +3028,9 @@
             }]
         };
 
-        // State and storage handling
         let appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
         let backupsData = {};
-
-        // Non-persisted files for current session
-        let appFiles = [];
+        let appFiles = []; // Temporary cache for local objectURLs (does not sync to local storage)
 
         function saveToLocalStorage() {
             try {
@@ -2855,7 +3044,6 @@
         function loadFromLocalStorage() {
             try {
                 if (typeof localStorage === 'undefined') return;
-                // Check local storage
                 const saved = localStorage.getItem('fluxer_autosave');
                 if (saved) {
                     const parsed = JSON.parse(saved);
@@ -2864,15 +3052,11 @@
                     appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
                 }
 
-                // Load backup list
                 const bStorage = localStorage.getItem('fluxer_backups');
-                if (bStorage) {
-                    backupsData = JSON.parse(bStorage);
-                }
+                if (bStorage) { backupsData = JSON.parse(bStorage); }
             } catch (e) { console.error("Load error:", e); }
         }
 
-        // Persistent storage
         async function checkStoragePersistence() {
             try {
                 if (navigator.storage && navigator.storage.persist && navigator.storage.persisted) {
@@ -2900,7 +3084,7 @@
             }
         }
 
-        // Backups logic
+        // --- Backups Management UI ---
         function openBackupsModal() {
             checkStoragePersistence();
             renderBackupsList();
@@ -2917,7 +3101,6 @@
                 return;
             }
 
-            // Sort items
             backupKeys.reverse().forEach(key => {
                 const item = backupsData[key];
                 const dateStr = item._savedAt ? new Date(item._savedAt).toLocaleString() : 'Unknown Date';
@@ -2975,10 +3158,7 @@
 
         function clearAllWorkspace() {
             if (confirm("Are you absolutely sure you want to completely clear the editor? This gives you a blank slate. Unsaved changes will be lost.")) {
-                appState = {
-                    webhookUrl: "", username: "", avatar: "", content: "",
-                    embeds: []
-                };
+                appState = { webhookUrl: "", username: "", avatar: "", content: "", embeds: [] };
                 clearFiles();
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
@@ -2996,14 +3176,11 @@
             }
         }
 
-        // UI modal logic
         function closeEntryModal() { document.getElementById('entryModal').style.display = 'none'; }
         function toggleModal() { const m = document.getElementById('guideModal'); m.style.display = (m.style.display === 'flex') ? 'none' : 'flex'; }
 
         let modalClickTarget = null;
-        function handleModalMouseDown(e) {
-            modalClickTarget = e.target;
-        }
+        function handleModalMouseDown(e) { modalClickTarget = e.target; }
         function handleModalMouseUp(e, modalId) {
             if (e.target.id === modalId && modalClickTarget === e.target) {
                 document.getElementById(modalId).style.display = 'none';
@@ -3017,8 +3194,7 @@
             }
         });
 
-
-        // Color picker interactions
+        // --- Color Conversion Pipeline ---
         let cpEmbedIndex = -1;
         let cpH = 0, cpS = 0, cpV = 1;
         let isDraggingWheel = false;
@@ -3047,7 +3223,6 @@
                         let sat = distance / cpRadius;
 
                         let rgb = hsvToRgb(hue, sat, 1);
-
                         imgData.data[idx] = rgb[0];
                         imgData.data[idx + 1] = rgb[1];
                         imgData.data[idx + 2] = rgb[2];
@@ -3066,30 +3241,20 @@
 
             let [h, s, v] = hexToHsv(currentHex);
             cpH = h; cpS = s; cpV = v;
-
             document.getElementById('cpSlider').value = cpV;
             updatePickerUI('init');
         }
 
-        function closeColorPicker() {
-            document.getElementById('colorPickerModal').style.display = 'none';
-        }
-
+        function closeColorPicker() { document.getElementById('colorPickerModal').style.display = 'none'; }
         function confirmColorPicker() {
             const rgb = hsvToRgb(cpH, cpS, cpV);
             const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-
             appState.embeds[cpEmbedIndex].color = hex;
             renderEditor();
-
             closeColorPicker();
         }
 
-        function onWheelInteract(e) {
-            isDraggingWheel = true;
-            onWheelDrag(e);
-        }
-
+        function onWheelInteract(e) { isDraggingWheel = true; onWheelDrag(e); }
         function onWheelDrag(e) {
             if (!isDraggingWheel) return;
             e.preventDefault();
@@ -3102,8 +3267,8 @@
 
             let x = clientX - rect.left - cpRadius;
             let y = clientY - rect.top - cpRadius;
-
             let distance = Math.sqrt(x * x + y * y);
+
             if (distance > cpRadius) {
                 x = (x / distance) * cpRadius;
                 y = (y / distance) * cpRadius;
@@ -3119,7 +3284,6 @@
         }
 
         function endWheelDrag() { isDraggingWheel = false; }
-
         function onSliderChange() {
             cpV = parseFloat(document.getElementById('cpSlider').value);
             updatePickerUI('slider');
@@ -3141,11 +3305,9 @@
         }
 
         function handleRgbInput() {
-            let r = parseInt(document.getElementById('cpRInput').value);
-            let g = parseInt(document.getElementById('cpGInput').value);
-            let b = parseInt(document.getElementById('cpBInput').value);
-
-            if (isNaN(r)) r = 0; if (isNaN(g)) g = 0; if (isNaN(b)) b = 0;
+            let r = parseInt(document.getElementById('cpRInput').value) || 0;
+            let g = parseInt(document.getElementById('cpGInput').value) || 0;
+            let b = parseInt(document.getElementById('cpBInput').value) || 0;
 
             r = Math.min(255, Math.max(0, r));
             g = Math.min(255, Math.max(0, g));
@@ -3170,13 +3332,11 @@
             const pureWheelRgb = hsvToRgb(cpH, cpS, 1);
             const finalRgb = hsvToRgb(cpH, cpS, cpV);
             const hex = rgbToHex(finalRgb[0], finalRgb[1], finalRgb[2]);
-
             const pureColorHex = rgbToHex(pureWheelRgb[0], pureWheelRgb[1], pureWheelRgb[2]);
+
             document.getElementById('cpSlider').style.background = `linear-gradient(to right, #000000, ${pureColorHex})`;
 
-            if (source !== 'hex') {
-                document.getElementById('cpHexInput').value = hex.toUpperCase();
-            }
+            if (source !== 'hex') { document.getElementById('cpHexInput').value = hex.toUpperCase(); }
             if (source !== 'rgb') {
                 document.getElementById('cpRInput').value = finalRgb[0];
                 document.getElementById('cpGInput').value = finalRgb[1];
@@ -3186,11 +3346,8 @@
 
         function hsvToRgb(h, s, v) {
             let r, g, b, i, f, p, q, t;
-            i = Math.floor(h / 60);
-            f = h / 60 - i;
-            p = v * (1 - s);
-            q = v * (1 - f * s);
-            t = v * (1 - (1 - f) * s);
+            i = Math.floor(h / 60); f = h / 60 - i;
+            p = v * (1 - s); q = v * (1 - f * s); t = v * (1 - (1 - f) * s);
             switch (i % 6) {
                 case 0: r = v, g = t, b = p; break;
                 case 1: r = q, g = v, b = p; break;
@@ -3228,13 +3385,9 @@
             return [h * 360, s, v];
         }
 
-
-        // FILE ATTACHMENTS LOGIC
-
+        // --- Drag/Drop & Clipboard Integrations ---
         function handleFileSelect(e) {
-            if (e.target.files && e.target.files.length > 0) {
-                addFiles(e.target.files);
-            }
+            if (e.target.files && e.target.files.length > 0) { addFiles(e.target.files); }
             e.target.value = "";
         }
 
@@ -3242,12 +3395,7 @@
             for (let i = 0; i < fileList.length; i++) {
                 const file = fileList[i];
                 const objectUrl = URL.createObjectURL(file);
-                appFiles.push({
-                    name: file.name,
-                    type: file.type,
-                    file: file,
-                    objectUrl: objectUrl
-                });
+                appFiles.push({ name: file.name, type: file.type, file: file, objectUrl: objectUrl });
             }
             renderEditorFiles();
             renderPreview();
@@ -3313,8 +3461,7 @@
             });
         }
 
-
-        // Render editor UI
+        // --- Core Editor Bootstrapper ---
         function renderEditor() {
             document.getElementById('webhookUrl').value = appState.webhookUrl || "";
             document.getElementById('username').value = appState.username || "";
@@ -3409,46 +3556,85 @@
             renderPreview();
         }
 
-        // Element change handlers
         function updateState(key, val) { appState[key] = val; renderPreview(); }
         function updateEmbed(eIndex, key, val) { appState.embeds[eIndex][key] = val; renderPreview(); }
         function setEmbedColor(eIndex, hex) { appState.embeds[eIndex].color = hex; renderEditor(); }
-
         function addEmbed() { appState.embeds.push({ authorName: "", authorUrl: "", authorIcon: "", title: "", url: "", description: "", color: "#5865F2", imageUrl: "", thumbnailUrl: "", footerText: "", footerIcon: "", fields: [] }); renderEditor(); }
         function removeEmbed(eIndex) { appState.embeds.splice(eIndex, 1); renderEditor(); }
-
         function addField(eIndex) { appState.embeds[eIndex].fields.push({ name: "", value: "", inline: false }); renderEditor(); }
         function updateField(eIndex, fIndex, key, val) { appState.embeds[eIndex].fields[fIndex][key] = val; renderPreview(); }
         function removeField(eIndex, fIndex) { appState.embeds[eIndex].fields.splice(fIndex, 1); renderEditor(); }
 
-        // Markdown parser
+        // --- Custom DOM Modifier for Markdown Generation ---
         function parseFluxerMarkdown(text) {
             if (!text) return "";
             let parsed = text;
 
-            parsed = parsed.replace(/^-#\s+(.*)$/gm, '<span class="small-text">$1</span>');
+            parsed = parsed.replace(/^-#\s+(.*)$/gm, '<div class="small-text">$1</div>');
             parsed = parsed.replace(/\|\|(.*?)\|\|/g, '<span class="spoiler">$1</span>');
-            parsed = parsed.replace(/<@(.*?)>/g, '<span style="background:#3c4270; color:#c9cdfb; padding:0 4px; border-radius:3px;">@$1</span>');
-            parsed = parsed.replace(/<#(.*?)>/g, '<span style="background:#3c4270; color:#c9cdfb; padding:0 4px; border-radius:3px;">#$1</span>');
-            parsed = parsed.replace(/<t:([0-9]+):[a-zA-Z]>/g, '<span style="background:#2b2d31; padding:0 4px; border-radius:3px; color:#ddd; font-size:0.9em;">📅 Timestamp</span>');
+            parsed = parsed.replace(/<@!?(\w+)>/g, '<span class="f-mention">@$1</span>');
+            parsed = parsed.replace(/<\/?name:[\w]+>|<\/?kick user:[\w]+>/g, '<span class="f-mention">/name</span>');
+            parsed = parsed.replace(/<@&(\w+)>/g, '<span class="f-mention">@role</span>');
+            parsed = parsed.replace(/<#(\w+)>/g, '<span class="f-mention">#channel</span>');
+            parsed = parsed.replace(/<t:([0-9]+):([a-zA-Z])>/g, `<span class="f-timestamp-badge">📅 Timestamp</span>`);
 
             if (parsed.includes('>>> ')) {
                 const parts = parsed.split('>>> ');
                 parsed = parts[0] + '<blockquote>' + parts[1].replace(/\n/g, '<br>') + '</blockquote>';
             }
 
-            const types = { "NOTE": "adm-note", "TIP": "adm-tip", "IMPORTANT": "adm-important", "WARNING": "adm-warn", "CAUTION": "adm-danger" };
-            for (const [key, cls] of Object.entries(types)) {
-                const regex = new RegExp(`^> \\[\\!${key}\\] (.*)`, 'gm');
-                parsed = parsed.replace(regex, `<div class="admonition ${cls}"><span class="adm-title">${key}</span>$1</div>`);
-            }
-
             if (typeof marked !== 'undefined') {
-                parsed = marked.parse(parsed);
+                parsed = marked.parse(parsed, { breaks: true });
 
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = parsed;
 
+                // Safely translate generic blockquotes containing Admonition keys into styled component blocks 
+                const admonitions = {
+                    "NOTE": { cls: "adm-note", title: "Note", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>` },
+                    "TIP": { cls: "adm-tip", title: "Tip", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zM9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1z"/></svg>` },
+                    "IMPORTANT": { cls: "adm-important", title: "Important", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>` },
+                    "WARNING": { cls: "adm-warn", title: "Warning", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>` },
+                    "CAUTION": { cls: "adm-danger", title: "Caution", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>` }
+                };
+
+                const blockquotes = tempDiv.querySelectorAll('blockquote');
+                blockquotes.forEach(bq => {
+                    const firstP = bq.querySelector('p');
+                    if (!firstP) return;
+
+                    let html = firstP.innerHTML;
+                    for (const [key, data] of Object.entries(admonitions)) {
+                        const tag = `[!${key}]`;
+                        if (html.startsWith(tag)) {
+                            // Trim leading tags & line breaks to securely wrap text directly against the left-border edge
+                            let bodyContent = html.substring(tag.length).replace(/^(?:<br\s*\/?>|\s)+/i, '');
+                            firstP.innerHTML = bodyContent;
+
+                            const admDiv = document.createElement('div');
+                            admDiv.className = `admonition ${data.cls}`;
+
+                            const admTitle = document.createElement('div');
+                            admTitle.className = 'adm-title';
+                            admTitle.innerHTML = `${data.icon} <span>${data.title}</span>`;
+
+                            const admBody = document.createElement('div');
+                            admBody.className = 'adm-body';
+
+                            while (bq.firstChild) {
+                                admBody.appendChild(bq.firstChild);
+                            }
+
+                            admDiv.appendChild(admTitle);
+                            admDiv.appendChild(admBody);
+
+                            bq.replaceWith(admDiv);
+                            break;
+                        }
+                    }
+                });
+
+                // Inline block substitution for LaTeX components via KaTeX
                 const latexBlocks = tempDiv.querySelectorAll('code.language-latex');
                 latexBlocks.forEach(block => {
                     try {
@@ -3473,6 +3659,7 @@
             return parsed;
         }
 
+        // --- Visualizer Output Compiler ---
         function renderPreview() {
             document.getElementById('prevName').innerText = appState.username || "Fluxer System";
             const avDiv = document.getElementById('prevAvatar');
@@ -3547,14 +3734,12 @@
                 `;
 
                 if (typeof DOMPurify !== 'undefined') {
-                    // Sanitize html string
                     embedBlockHtml = DOMPurify.sanitize(embedBlockHtml, { ADD_ATTR: ['target', 'rel'] });
                 }
 
                 previewContainer.innerHTML += embedBlockHtml;
             });
 
-            // Handle rendering of attachments at the bottom
             const attachmentsContainer = document.getElementById('prevAttachmentsContainer');
             if (attachmentsContainer) {
                 attachmentsContainer.innerHTML = "";
@@ -3572,17 +3757,15 @@
                 });
             }
 
-            saveToLocalStorage(); // Save changes
+            saveToLocalStorage();
         }
 
-        // Mobile view logic
         function toggleMobileView() {
             const isPreview = document.body.classList.toggle('show-preview');
             document.getElementById('fabToggle').innerHTML = isPreview ? '<i class="octicon octicon-pencil"></i> Edit' : '<i class="octicon octicon-eye"></i> Preview';
         }
 
-        // Form submission
-
+        // --- I/O File Processing (Save/Load Configuration) ---
         function getCleanWebhookUrl() {
             if (!appState.webhookUrl) return "";
             return appState.webhookUrl.trim().replace(/\/$/, "");
@@ -3606,15 +3789,11 @@
 
             const jsonContent = JSON.stringify(exportData, null, 2);
 
-            // Try modern File System Access API
             if ('showSaveFilePicker' in window && window.location.protocol !== 'file:') {
                 try {
                     const handle = await window.showSaveFilePicker({
                         suggestedName: filename,
-                        types: [{
-                            description: 'JSON File',
-                            accept: { 'application/json': ['.json'] },
-                        }],
+                        types: [{ description: 'JSON File', accept: { 'application/json': ['.json'] } }],
                     });
                     const writable = await handle.createWritable();
                     await writable.write(jsonContent);
@@ -3627,7 +3806,6 @@
                 }
             }
 
-            // Fallback for older browsers or file://
             try {
                 const blob = new Blob([jsonContent], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
@@ -3661,13 +3839,12 @@
                     alert("Invalid JSON file! Make sure it's a valid Fluxer config.");
                 }
             };
-            reader.onerror = () => {
-                alert("Error reading file. Please try again.");
-            };
+            reader.onerror = () => { alert("Error reading file. Please try again."); };
             reader.readAsText(file);
             event.target.value = "";
         }
 
+        // --- HTTP Request Payload Packaging ---
         async function sendWebhook() {
             if (!appState.webhookUrl) { alert("Please enter a Webhook URL!"); return; }
             const btn = document.getElementById('sendBtn');
@@ -3675,8 +3852,6 @@
             const cleanWebhookUrl = getCleanWebhookUrl();
             const targetUrl = cleanWebhookUrl;
             const fetchMethod = "POST";
-
-            // Send webhook request
             const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/";
 
             btn.innerText = "Sending...";
@@ -3712,7 +3887,6 @@
                 payload.embeds.push(formattedEmbed);
             });
 
-            // Constructing request with conditional Form Data logic
             let fetchOptions = {
                 method: fetchMethod,
                 headers: {
@@ -3720,8 +3894,8 @@
                 }
             };
 
+            // Multiplex request based on existing file queue limits
             if (appFiles.length > 0) {
-                // If there are files, we construct a multipart/form-data payload
                 const formData = new FormData();
                 formData.append('payload_json', JSON.stringify(payload));
 
@@ -3730,7 +3904,6 @@
                 });
                 fetchOptions.body = formData;
             } else {
-                // Typical JSON application post
                 fetchOptions.headers["Content-Type"] = "application/json";
                 fetchOptions.body = JSON.stringify(payload);
             }
@@ -3755,7 +3928,6 @@
             } catch (e) { }
         });
 
-        // Floating delete handler
         function toggleFabDelete() {
             const container = document.getElementById('fabDeleteContainer');
             if (container.classList.contains('hidden')) {
