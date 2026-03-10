@@ -3910,7 +3910,9 @@
                 let match = rawId.match(/\d+$/);
                 let parsedMsgId = match ? match[0] : rawId;
 
-                targetUrl = `${cleanWebhookUrl}/messages/${parsedMsgId}?wait=true`;
+                // CRITICAL FIX: Discord/Fluxer editing endpoint does NOT take ?wait=true. 
+                // The URL must end exactly with /messages/{id}
+                targetUrl = `${cleanWebhookUrl}/messages/${parsedMsgId}`;
                 fetchMethod = "PATCH";
             } else {
                 targetUrl = `${cleanWebhookUrl}?wait=true`;
@@ -3974,8 +3976,20 @@
 
             try {
                 const res = await fetch(proxyUrl, fetchOptions);
-                if (res.ok) btn.innerText = isEdit ? "Edited Successfully!" : "Sent Successfully!";
-                else { alert("Error: " + await res.text()); btn.innerText = "Error (Check URL/ID)"; }
+                if (res.ok) {
+                    btn.innerText = isEdit ? "Edited Successfully!" : "Sent Successfully!";
+                } else {
+                    const errorText = await res.text();
+
+                    // Alert context based on the returned error text
+                    if (errorText.includes("NOT_FOUND") || res.status === 404) {
+                        alert("Error: Webhook could not find that message. Remember: You can only edit messages that were originally sent by THIS exact webhook!");
+                    } else {
+                        alert("Error: " + errorText);
+                    }
+
+                    btn.innerText = "Error (Check URL/ID)";
+                }
             } catch (err) { alert("Network Error. Check console."); btn.innerText = "Failed"; }
 
             setTimeout(() => { btn.innerText = originalText; }, 2500);
