@@ -2765,16 +2765,9 @@
                 </div>
 
                 <div class="glass-card">
-                    <div style="margin-bottom: 15px;">
-                        <label>Connection (Webhook URL)</label>
-                        <input type="password" id="webhookUrl" placeholder="https://fluxer.app/api/webhooks/..."
-                            oninput="updateState('webhookUrl', this.value)" />
-                    </div>
-                    <div>
-                        <label>Target Message (Link or ID, for editing)</label>
-                        <input type="text" id="messageId" placeholder="1480778455564771616"
-                            oninput="updateState('messageId', this.value); toggleSendButton();" />
-                    </div>
+                    <label>Connection (Webhook URL)</label>
+                    <input type="password" id="webhookUrl" placeholder="https://fluxer.app/api/webhooks/..."
+                        oninput="updateState('webhookUrl', this.value)" />
                 </div>
 
                 <div class="glass-card row-inputs">
@@ -2839,13 +2832,7 @@
                     </label>
                 </div>
 
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button class="btn-primary" id="sendBtn" onclick="sendWebhook(false)" disabled style="flex: 2;">Send
-                        Message</button>
-                    <button class="btn-primary" id="editBtn" onclick="sendWebhook(true)" disabled
-                        style="flex: 1; background: transparent; border: 1px solid var(--accent); color: var(--accent);">Edit
-                        Message</button>
-                </div>
+                <button class="btn-primary" id="sendBtn" onclick="sendWebhook()" disabled>Send Message</button>
             </div>
 
             <div class="fab-delete-container hidden" id="fabDeleteContainer">
@@ -3042,7 +3029,7 @@
 
         // --- Core Application State ---
         const DEFAULT_TEMPLATE = {
-            webhookUrl: "", messageId: "", username: "Fluxer System", avatar: "https://i.imgur.com/TObDTBk.png",
+            webhookUrl: "", username: "Fluxer System", avatar: "https://i.imgur.com/TObDTBk.png",
             content: "Welcome to Fluxer Webhook Studio Pro! \n\n> [!TIP]\n> This is a default template to show off basic markdown capabilities. Use the `Backups` button above to load your saved configurations or start from an entirely blank slate!",
             embeds: [{
                 authorName: "Studio Guided Template", authorUrl: "", authorIcon: "",
@@ -3181,7 +3168,7 @@
 
         function clearAllWorkspace() {
             if (confirm("Are you absolutely sure you want to completely clear the editor? This gives you a blank slate. Unsaved changes will be lost.")) {
-                appState = { webhookUrl: "", messageId: "", username: "", avatar: "", content: "", embeds: [] };
+                appState = { webhookUrl: "", username: "", avatar: "", content: "", embeds: [] };
                 clearFiles();
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
@@ -3487,7 +3474,6 @@
         // --- Core Editor Bootstrapper ---
         function renderEditor() {
             document.getElementById('webhookUrl').value = appState.webhookUrl || "";
-            document.getElementById('messageId').value = appState.messageId || "";
             document.getElementById('username').value = appState.username || "";
             document.getElementById('avatar').value = appState.avatar || "";
             document.getElementById('content').value = appState.content || "";
@@ -3805,9 +3791,7 @@
         function getCleanWebhookUrl() {
             if (!appState.webhookUrl) return "";
             let url = appState.webhookUrl.trim();
-            // Remove any existing query parameters from the base url
             url = url.split('?')[0];
-            // Remove trailing slashes
             return url.replace(/\/$/, "");
         }
 
@@ -3886,41 +3870,19 @@
 
         // --- HTTP Request Payload Packaging ---
         function toggleSendButton() {
-            const isForgiven = document.getElementById('forgiveCheckbox').checked;
-            document.getElementById('sendBtn').disabled = !isForgiven;
-
-            const msgId = document.getElementById('messageId').value.trim();
-            document.getElementById('editBtn').disabled = !(isForgiven && msgId);
+            document.getElementById('sendBtn').disabled = !document.getElementById('forgiveCheckbox').checked;
         }
 
-        async function sendWebhook(isEdit = false) {
+        async function sendWebhook() {
             if (!appState.webhookUrl) { alert("Please enter a Webhook URL!"); return; }
-            if (isEdit && !appState.messageId) { alert("Please enter a Message ID to edit!"); return; }
 
-            const btn = isEdit ? document.getElementById('editBtn') : document.getElementById('sendBtn');
+            const btn = document.getElementById('sendBtn');
             const originalText = btn.innerText;
 
-            const cleanWebhookUrl = getCleanWebhookUrl();
-            let targetUrl = cleanWebhookUrl;
-            let fetchMethod = "POST";
-
-            if (isEdit) {
-                // Remove trailing slash, then extract ONLY the digits at the end of the string
-                let rawId = appState.messageId.trim().replace(/\/$/, "");
-                let match = rawId.match(/\d+$/);
-                let parsedMsgId = match ? match[0] : rawId;
-
-                // CRITICAL FIX: Discord/Fluxer editing endpoint does NOT take ?wait=true. 
-                // The URL must end exactly with /messages/{id}
-                targetUrl = `${cleanWebhookUrl}/messages/${parsedMsgId}`;
-                fetchMethod = "PATCH";
-            } else {
-                targetUrl = `${cleanWebhookUrl}?wait=true`;
-            }
-
+            const targetUrl = `${getCleanWebhookUrl()}?wait=true`;
             const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/";
 
-            btn.innerText = isEdit ? "Editing..." : "Sending...";
+            btn.innerText = "Sending...";
 
             const payload = {
                 username: appState.username || undefined, avatar_url: appState.avatar || undefined, content: appState.content || undefined, embeds: []
@@ -3954,7 +3916,7 @@
             });
 
             let fetchOptions = {
-                method: fetchMethod,
+                method: "POST",
                 headers: {
                     "X-Target-Url": targetUrl
                 }
@@ -3977,18 +3939,11 @@
             try {
                 const res = await fetch(proxyUrl, fetchOptions);
                 if (res.ok) {
-                    btn.innerText = isEdit ? "Edited Successfully!" : "Sent Successfully!";
+                    btn.innerText = "Sent Successfully!";
                 } else {
                     const errorText = await res.text();
-
-                    // Alert context based on the returned error text
-                    if (errorText.includes("NOT_FOUND") || res.status === 404) {
-                        alert("Error: Webhook could not find that message. Remember: You can only edit messages that were originally sent by THIS exact webhook!");
-                    } else {
-                        alert("Error: " + errorText);
-                    }
-
-                    btn.innerText = "Error (Check URL/ID)";
+                    alert("Error: " + errorText);
+                    btn.innerText = "Error (Check URL)";
                 }
             } catch (err) { alert("Network Error. Check console."); btn.innerText = "Failed"; }
 
