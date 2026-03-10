@@ -631,16 +631,45 @@
             display: none !important;
         }
 
-        .adm-note { border-color: var(--adm-note); }
-        .adm-note .adm-title { color: var(--adm-note); }
-        .adm-tip { border-color: var(--adm-tip); }
-        .adm-tip .adm-title { color: var(--adm-tip); }
-        .adm-important { border-color: var(--adm-important); }
-        .adm-important .adm-title { color: var(--adm-important); }
-        .adm-warn { border-color: var(--adm-warn); }
-        .adm-warn .adm-title { color: var(--adm-warn); }
-        .adm-danger { border-color: var(--adm-danger); }
-        .adm-danger .adm-title { color: var(--adm-danger); }
+        .adm-note {
+            border-color: var(--adm-note);
+        }
+
+        .adm-note .adm-title {
+            color: var(--adm-note);
+        }
+
+        .adm-tip {
+            border-color: var(--adm-tip);
+        }
+
+        .adm-tip .adm-title {
+            color: var(--adm-tip);
+        }
+
+        .adm-important {
+            border-color: var(--adm-important);
+        }
+
+        .adm-important .adm-title {
+            color: var(--adm-important);
+        }
+
+        .adm-warn {
+            border-color: var(--adm-warn);
+        }
+
+        .adm-warn .adm-title {
+            color: var(--adm-warn);
+        }
+
+        .adm-danger {
+            border-color: var(--adm-danger);
+        }
+
+        .adm-danger .adm-title {
+            color: var(--adm-danger);
+        }
 
         /* Code Blocks */
         code {
@@ -902,7 +931,10 @@
         }
 
         /* Guide Specific Container Grid */
-        .g-section { margin-bottom: 40px; }
+        .g-section {
+            margin-bottom: 40px;
+        }
+
         .g-title {
             font-size: 20px;
             color: var(--accent);
@@ -911,12 +943,14 @@
             border-bottom: 1px solid #222;
             padding-bottom: 8px;
         }
+
         .g-desc {
             color: #ccc;
             font-size: 14px;
             margin-bottom: 15px;
             line-height: 1.5;
         }
+
         .g-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -927,11 +961,13 @@
             padding: 12px;
             align-items: stretch;
         }
+
         .g-cell {
             padding: 12px;
             border-radius: 6px;
             font-size: 13px;
         }
+
         .g-code-col {
             background: #111214;
             color: #a6accd;
@@ -939,6 +975,7 @@
             white-space: pre-wrap;
             border: 1px solid #1e1f22;
         }
+
         .g-res-col {
             background: #1e1f22;
             color: #dbdee1;
@@ -947,6 +984,7 @@
             flex-direction: column;
             justify-content: center;
         }
+
         .g-math-preview {
             background: #1a1b1e;
             border: 1px solid #2b2d31;
@@ -1510,8 +1548,15 @@
         }
 
         @keyframes spotlightDrift {
-            0% { transform: translateX(-50%) translateY(0) scale(1.0); opacity: 0.4; }
-            100% { transform: translateX(-45%) translateY(50px) scale(1.1); opacity: 0.7; }
+            0% {
+                transform: translateX(-50%) translateY(0) scale(1.0);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: translateX(-45%) translateY(50px) scale(1.1);
+                opacity: 0.7;
+            }
         }
 
         #particleCanvas {
@@ -1575,11 +1620,30 @@
         }
 
         @keyframes loopScroll {
-            0%, 20% { transform: translateY(0); }
-            25%, 45% { transform: translateY(-1.1em); }
-            50%, 70% { transform: translateY(-2.2em); }
-            75%, 95% { transform: translateY(-3.3em); }
-            100% { transform: translateY(0); }
+
+            0%,
+            20% {
+                transform: translateY(0);
+            }
+
+            25%,
+            45% {
+                transform: translateY(-1.1em);
+            }
+
+            50%,
+            70% {
+                transform: translateY(-2.2em);
+            }
+
+            75%,
+            95% {
+                transform: translateY(-3.3em);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
         }
 
         .lp-hero p {
@@ -1652,7 +1716,10 @@
         }
 
         @keyframes floatReveal {
-            to { transform: translateY(0) rotateX(0); opacity: 1; }
+            to {
+                transform: translateY(0) rotateX(0);
+                opacity: 1;
+            }
         }
 
         .lp-preview-chrome {
@@ -1665,10 +1732,24 @@
             gap: 12px;
         }
 
-        .lp-chrome-dot { width: 12px; height: 12px; border-radius: 50%; opacity: 0.3; }
-        .lp-dot-red { background: #ff5f56; }
-        .lp-dot-yellow { background: #ffbd2e; }
-        .lp-dot-green { background: #27c93f; }
+        .lp-chrome-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        .lp-dot-red {
+            background: #ff5f56;
+        }
+
+        .lp-dot-yellow {
+            background: #ffbd2e;
+        }
+
+        .lp-dot-green {
+            background: #27c93f;
+        }
 
         .lp-preview-content {
             display: flex;
@@ -1699,8 +1780,17 @@
             border-radius: 10px;
         }
 
-        .lp-mock-title { width: 60%; height: 32px; margin-bottom: 24px; background: rgba(58, 130, 247, 0.2); }
-        .lp-mock-msg { width: 100%; height: 120px; }
+        .lp-mock-title {
+            width: 60%;
+            height: 32px;
+            margin-bottom: 24px;
+            background: rgba(58, 130, 247, 0.2);
+        }
+
+        .lp-mock-msg {
+            width: 100%;
+            height: 120px;
+        }
 
         .lp-mock-embed {
             width: 100%;
@@ -1732,8 +1822,15 @@
             z-index: 2;
         }
 
-        .lp-marquee-section::before { left: 0; background: linear-gradient(to right, var(--bg-deep), transparent); }
-        .lp-marquee-section::after { right: 0; background: linear-gradient(to left, var(--bg-deep), transparent); }
+        .lp-marquee-section::before {
+            left: 0;
+            background: linear-gradient(to right, var(--bg-deep), transparent);
+        }
+
+        .lp-marquee-section::after {
+            right: 0;
+            background: linear-gradient(to left, var(--bg-deep), transparent);
+        }
 
         .lp-marquee {
             display: flex;
@@ -1743,7 +1840,9 @@
         }
 
         @keyframes marqueeScroll {
-            to { transform: translateX(-50%); }
+            to {
+                transform: translateX(-50%);
+            }
         }
 
         .lp-capability {
@@ -1757,12 +1856,30 @@
             transition: opacity 0.3s;
         }
 
-        .lp-capability:hover { opacity: 1; }
-        .lp-cap-icon { font-size: 32px; filter: grayscale(1); transition: filter 0.3s; }
-        .lp-capability:hover .lp-cap-icon { filter: grayscale(0); }
+        .lp-capability:hover {
+            opacity: 1;
+        }
 
-        .lp-features-section { padding: 140px 24px; background: #050505; }
-        .section-header { margin-bottom: 80px; max-width: 800px; }
+        .lp-cap-icon {
+            font-size: 32px;
+            filter: grayscale(1);
+            transition: filter 0.3s;
+        }
+
+        .lp-capability:hover .lp-cap-icon {
+            filter: grayscale(0);
+        }
+
+        .lp-features-section {
+            padding: 140px 24px;
+            background: #050505;
+        }
+
+        .section-header {
+            margin-bottom: 80px;
+            max-width: 800px;
+        }
+
         .section-tag {
             color: var(--accent);
             font-size: 12px;
@@ -1772,6 +1889,7 @@
             margin-bottom: 16px;
             display: block;
         }
+
         .section-header h2 {
             font-size: clamp(32px, 5vw, 56px);
             font-weight: 800;
@@ -1820,12 +1938,34 @@
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
         }
 
-        .lp-feature-card:hover::before { opacity: 1; }
-        .lp-feature-card.visible { opacity: 1; transform: translateY(0); }
+        .lp-feature-card:hover::before {
+            opacity: 1;
+        }
 
-        .lp-feature-icon { font-size: 40px; margin-bottom: 32px; display: block; }
-        .lp-feature-card h3 { font-size: 24px; font-weight: 700; margin: 0 0 16px; color: #fff; }
-        .lp-feature-card p { font-size: 16px; color: #888; line-height: 1.6; margin: 0; }
+        .lp-feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .lp-feature-icon {
+            font-size: 40px;
+            margin-bottom: 32px;
+            display: block;
+        }
+
+        .lp-feature-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 16px;
+            color: #fff;
+        }
+
+        .lp-feature-card p {
+            font-size: 16px;
+            color: #888;
+            line-height: 1.6;
+            margin: 0;
+        }
 
         .lp-stats-section {
             padding: 100px 24px;
@@ -1843,8 +1983,22 @@
             text-align: center;
         }
 
-        .lp-stat-number { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; color: #fff; display: block; margin-bottom: 8px; }
-        .lp-stat-label { font-size: 14px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+        .lp-stat-number {
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: #fff;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .lp-stat-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
 
         .lp-cta-section {
             padding: 160px 24px;
@@ -1852,25 +2006,93 @@
             background: radial-gradient(circle at 50% 50%, rgba(58, 130, 247, 0.1) 0%, transparent 70%);
         }
 
-        .lp-cta-section h2 { font-size: clamp(40px, 8vw, 72px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin: 0 0 48px; color: #fff; }
+        .lp-cta-section h2 {
+            font-size: clamp(40px, 8vw, 72px);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin: 0 0 48px;
+            color: #fff;
+        }
 
-        .lp-footer { padding: 80px 24px 48px; background: #000; border-top: 1px solid var(--glass-border); text-align: center; }
-        .lp-footer-content { max-width: 1200px; margin: 0 auto; }
-        .lp-footer-logo { font-weight: 800; font-size: 24px; color: #fff; margin-bottom: 32px; display: block; }
-        .lp-footer p { color: #666; font-size: 14px; margin-bottom: 24px; }
-        .lp-footer-disclaimer { font-size: 12px; color: #333; max-width: 600px; margin: 0 auto; }
+        .lp-footer {
+            padding: 80px 24px 48px;
+            background: #000;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .lp-footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lp-footer-logo {
+            font-weight: 800;
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 32px;
+            display: block;
+        }
+
+        .lp-footer p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .lp-footer-disclaimer {
+            font-size: 12px;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
         @media (max-width: 768px) {
-            .lp-nav { width: 95%; top: 12px; }
-            .lp-nav-links { display: none; }
-            .lp-features-grid { grid-template-columns: 1fr; }
-            .lp-hero h1 { font-size: 56px; }
-            .lp-editor-preview { aspect-ratio: 4 / 3; }
-            .lp-preview-sidebar { display: none; }
-            .lp-mock-embed { transform: scale(0.85); max-width: 320px; }
-            .top-header { flex-direction: column; gap: 16px; }
-            .header-brand h1 { font-size: 20px; }
-            .top-btn { min-width: 70px; padding: 10px 16px; font-size: 12px; }
+            .lp-nav {
+                width: 95%;
+                top: 12px;
+            }
+
+            .lp-nav-links {
+                display: none;
+            }
+
+            .lp-features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .lp-hero h1 {
+                font-size: 56px;
+            }
+
+            .lp-editor-preview {
+                aspect-ratio: 4 / 3;
+            }
+
+            .lp-preview-sidebar {
+                display: none;
+            }
+
+            .lp-mock-embed {
+                transform: scale(0.85);
+                max-width: 320px;
+            }
+
+            .top-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .header-brand h1 {
+                font-size: 20px;
+            }
+
+            .top-btn {
+                min-width: 70px;
+                padding: 10px 16px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -2588,7 +2810,7 @@
 
                         <button class="btn-danger" style="flex: 0; border-radius: 99px; padding: 12px 20px;"
                             onclick="clearFiles()">
-                            Clear
+                            <i class="octicon octicon-trashcan"></i> Clear
                         </button>
                     </div>
                     <div style="font-size: 11px; color: #888; margin-top: 8px;">
@@ -2598,8 +2820,9 @@
 
                 <div id="embedsContainer"></div>
 
-                <button class="btn-secondary" style="justify-content: center; border-style: dashed; margin-bottom: 15px;"
-                    onclick="addEmbed()"><i class="octicon octicon-plus"></i> Add Another Embed</button>
+                <button class="btn-secondary"
+                    style="justify-content: center; border-style: dashed; margin-bottom: 15px;" onclick="addEmbed()"><i
+                        class="octicon octicon-plus"></i> Add Another Embed</button>
 
                 <div class="disclaimer-area">
                     <label class="checkbox-wrapper">
@@ -2818,6 +3041,7 @@
         let appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
         let backupsData = {};
         let appFiles = []; // Temporary cache for local objectURLs (does not sync to local storage)
+        let appEmbedFiles = []; // Holds arrays of file objects mapped per embed index
 
         function saveToLocalStorage() {
             try {
@@ -2841,6 +3065,8 @@
 
                 const bStorage = localStorage.getItem('fluxer_backups');
                 if (bStorage) { backupsData = JSON.parse(bStorage); }
+
+                appEmbedFiles = appState.embeds.map(() => []); // Keep embed file queues synced to layout
             } catch (e) { console.error("Load error:", e); }
         }
 
@@ -2929,6 +3155,7 @@
         function loadBackup(name) {
             if (confirm(`Are you sure you want to load "${name}"? This will overwrite your current active editor view.`)) {
                 appState = JSON.parse(JSON.stringify(backupsData[name]));
+                appEmbedFiles = appState.embeds.map(() => []);
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
@@ -2947,6 +3174,10 @@
             if (confirm("Are you absolutely sure you want to completely clear the editor? This gives you a blank slate. Unsaved changes will be lost.")) {
                 appState = { webhookUrl: "", username: "", avatar: "", content: "", embeds: [] };
                 clearFiles();
+                appEmbedFiles.forEach(arr => {
+                    if (arr) arr.forEach(f => URL.revokeObjectURL(f.objectUrl));
+                });
+                appEmbedFiles = [];
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
@@ -2957,6 +3188,7 @@
             if (confirm("Are you sure you want to load the default template? Your current editor view will be overwritten.")) {
                 appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
                 clearFiles();
+                appEmbedFiles = appState.embeds.map(() => []);
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
@@ -3202,6 +3434,49 @@
             renderPreview();
         }
 
+        // New Logic for Embed Specific Attachments
+        function handleEmbedFileSelect(e, eIndex) {
+            if (e.target.files && e.target.files.length > 0) {
+                if (!appEmbedFiles[eIndex]) appEmbedFiles[eIndex] = [];
+                for (let i = 0; i < e.target.files.length; i++) {
+                    const file = e.target.files[i];
+                    const objectUrl = URL.createObjectURL(file);
+                    appEmbedFiles[eIndex].push({ name: file.name, type: file.type, file: file, objectUrl: objectUrl });
+                }
+                renderEditor();
+            }
+            e.target.value = "";
+        }
+
+        function removeEmbedFile(eIndex, fIndex) {
+            URL.revokeObjectURL(appEmbedFiles[eIndex][fIndex].objectUrl);
+            appEmbedFiles[eIndex].splice(fIndex, 1);
+            renderEditor();
+        }
+
+        function clearEmbedFiles(eIndex) {
+            if (appEmbedFiles[eIndex]) {
+                appEmbedFiles[eIndex].forEach(f => URL.revokeObjectURL(f.objectUrl));
+                appEmbedFiles[eIndex] = [];
+                renderEditor();
+            }
+        }
+
+        function setEmbedAttachmentUrl(eIndex, field, filename) {
+            updateEmbed(eIndex, field, 'attachment://' + filename);
+            renderEditor();
+        }
+
+        function findFileByName(name) {
+            for (let f of appFiles) if (f.name === name) return f;
+            for (let arr of appEmbedFiles) {
+                if (arr) {
+                    for (let f of arr) if (f.name === name) return f;
+                }
+            }
+            return null;
+        }
+
         async function triggerPaste() {
             try {
                 const clipboardItems = await navigator.clipboard.read();
@@ -3233,15 +3508,15 @@
             container.innerHTML = "";
             appFiles.forEach((f, i) => {
                 container.innerHTML += `
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--glass-border);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.02); padding: 15px 20px; border-radius: 24px; margin-bottom: 8px; border: 1px solid var(--glass-border);">
                         <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; white-space: nowrap;">
                             ${f.type.startsWith('image/')
-                        ? `<img src="${f.objectUrl}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px; flex-shrink: 0;">`
+                        ? `<img src="${f.objectUrl}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">`
                         : `<div style="font-size: 20px; flex-shrink: 0;">📄</div>`}
-                            <span style="font-size: 13px; text-overflow: ellipsis; overflow: hidden; max-width: 300px;">${f.name}</span>
+                            <span style="font-size: 14px; font-weight: bold; color: white; text-overflow: ellipsis; overflow: hidden; max-width: 300px;">${f.name}</span>
                         </div>
-                        <button class="btn-icon" style="border-color: rgba(242, 63, 66, 0.3); color: #F23F42; margin: 0; flex-shrink: 0;" onclick="removeFile(${i})">
-                            <i class="octicon octicon-trashcan"></i>
+                        <button class="btn-danger" style="margin: 0; padding: 10px 18px; font-size: 13px; border-radius: 99px; width: auto; justify-content: center;" onclick="removeFile(${i})">
+                            <i class="octicon octicon-trashcan"></i> Delete
                         </button>
                     </div>
                 `;
@@ -3277,6 +3552,29 @@
                     `;
                 });
 
+                let embedFilesHtml = "";
+                if (appEmbedFiles[eIndex] && appEmbedFiles[eIndex].length > 0) {
+                    appEmbedFiles[eIndex].forEach((f, fIndex) => {
+                        embedFilesHtml += `
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.02); padding: 15px 20px; border-radius: 24px; margin-bottom: 8px; border: 1px solid var(--glass-border);">
+                                <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; white-space: nowrap;">
+                                    ${f.type.startsWith('image/')
+                                ? `<img src="${f.objectUrl}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">`
+                                : `<div style="font-size: 20px; flex-shrink: 0;">📄</div>`}
+                                    <span style="font-size: 14px; font-weight: bold; color: white; text-overflow: ellipsis; overflow: hidden; max-width: 120px;">${f.name}</span>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn-secondary" style="margin: 0; padding: 10px 18px; font-size: 13px; border-radius: 99px; width: auto; justify-content: center;" onclick="setEmbedAttachmentUrl(${eIndex}, 'imageUrl', '${f.name.replace(/'/g, "\\'")}')" title="Set as Main Image">🖼️ Image</button>
+                                    <button class="btn-secondary" style="margin: 0; padding: 10px 18px; font-size: 13px; border-radius: 99px; width: auto; justify-content: center;" onclick="setEmbedAttachmentUrl(${eIndex}, 'thumbnailUrl', '${f.name.replace(/'/g, "\\'")}')" title="Set as Thumbnail">📝 Thumb</button>
+                                    <button class="btn-danger" style="margin: 0; padding: 10px 18px; font-size: 13px; border-radius: 99px; width: auto; justify-content: center;" onclick="removeEmbedFile(${eIndex}, ${fIndex})">
+                                        <i class="octicon octicon-trashcan"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
                 const presetColors = ['#5865F2', '#F23F42', '#23A559', '#F0B132', '#000000'];
                 const isCustomColor = !presetColors.includes(embed.color);
 
@@ -3305,6 +3603,23 @@
                         <div class="row-inputs" style="margin-top: 10px;">
                             <div><label>Image URL (Large)</label><input type="text" placeholder="https://..." value="${embed.imageUrl || ''}" oninput="updateEmbed(${eIndex}, 'imageUrl', this.value)" /></div>
                             <div><label>Thumbnail URL (Small)</label><input type="text" placeholder="https://..." value="${embed.thumbnailUrl || ''}" oninput="updateEmbed(${eIndex}, 'thumbnailUrl', this.value)" /></div>
+                        </div>
+
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
+                            <label>Embed Attachments (Local Images)</label>
+                            <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Upload images here to prevent Discord link expiration. Use the buttons to quickly link them as the Embed Image or Thumbnail.</div>
+                            <div id="embedFileListContainer_${eIndex}">
+                                ${embedFilesHtml}
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <input type="file" id="embedFileInput_${eIndex}" style="display: none;" multiple onchange="handleEmbedFileSelect(event, ${eIndex})">
+                                <button class="btn-secondary" style="flex: 1; justify-content: center; padding: 12px;" onclick="document.getElementById('embedFileInput_${eIndex}').click()">
+                                    <i class="octicon octicon-file"></i> Add Embed Image
+                                </button>
+                                <button class="btn-danger" style="flex: 0; border-radius: 99px; padding: 12px 24px;" onclick="clearEmbedFiles(${eIndex})">
+                                    <i class="octicon octicon-trashcan"></i> Clear 
+                                </button>
+                            </div>
                         </div>
 
                         <div class="row-inputs" style="margin-top: 10px;">
@@ -3346,8 +3661,22 @@
         function updateState(key, val) { appState[key] = val; renderPreview(); }
         function updateEmbed(eIndex, key, val) { appState.embeds[eIndex][key] = val; renderPreview(); }
         function setEmbedColor(eIndex, hex) { appState.embeds[eIndex].color = hex; renderEditor(); }
-        function addEmbed() { appState.embeds.push({ authorName: "", authorUrl: "", authorIcon: "", title: "", url: "", description: "", color: "#5865F2", imageUrl: "", thumbnailUrl: "", footerText: "", footerIcon: "", fields: [] }); renderEditor(); }
-        function removeEmbed(eIndex) { appState.embeds.splice(eIndex, 1); renderEditor(); }
+
+        function addEmbed() {
+            appState.embeds.push({ authorName: "", authorUrl: "", authorIcon: "", title: "", url: "", description: "", color: "#5865F2", imageUrl: "", thumbnailUrl: "", footerText: "", footerIcon: "", fields: [] });
+            appEmbedFiles.push([]); // Keep in sync
+            renderEditor();
+        }
+
+        function removeEmbed(eIndex) {
+            appState.embeds.splice(eIndex, 1);
+            if (appEmbedFiles[eIndex]) {
+                appEmbedFiles[eIndex].forEach(f => URL.revokeObjectURL(f.objectUrl));
+                appEmbedFiles.splice(eIndex, 1);
+            }
+            renderEditor();
+        }
+
         function addField(eIndex) { appState.embeds[eIndex].fields.push({ name: "", value: "", inline: false }); renderEditor(); }
         function updateField(eIndex, fIndex, key, val) { appState.embeds[eIndex].fields[fIndex][key] = val; renderPreview(); }
         function removeField(eIndex, fIndex) { appState.embeds[eIndex].fields.splice(fIndex, 1); renderEditor(); }
@@ -3364,7 +3693,7 @@
             parsed = parsed.replace(/<@&(\w+)>/g, '<span class="f-mention">@role</span>');
             parsed = parsed.replace(/<#(\w+)>/g, '<span class="f-mention">#channel</span>');
             parsed = parsed.replace(/<t:([0-9]+):([a-zA-Z])>/g, `<span class="f-timestamp-badge">📅 Timestamp</span>`);
-            
+
             // Standard Emoji Converter (:smile: -> 😄)
             parsed = parsed.replace(/:([a-zA-Z0-9_+-]+):/g, (match, alias) => {
                 return globalEmojiMap[alias] ? globalEmojiMap[alias] : match;
@@ -3491,8 +3820,40 @@
                         : `<div class="fe-title">${embed.title}</div>`;
                 }
 
-                let thumbHtml = embed.thumbnailUrl ? `<img src="${embed.thumbnailUrl}" class="fe-thumbnail" onerror="this.style.display='none'">` : '';
-                let imageHtml = embed.imageUrl ? `<img src="${embed.imageUrl}" class="fe-image" onerror="this.style.display='none'">` : '';
+                // Intercept attachment:// URIs and pull local blob URLs to render accurately in preview
+                let thumbHtml = "";
+                if (embed.thumbnailUrl) {
+                    let tUrl = embed.thumbnailUrl;
+                    if (tUrl.startsWith('attachment://')) {
+                        const fName = tUrl.replace('attachment://', '');
+                        let foundFile = findFileByName(fName);
+                        if (foundFile) {
+                            tUrl = foundFile.objectUrl;
+                        } else {
+                            tUrl = ""; // Blank URL if file gets deleted to avoid rendering a broken box
+                        }
+                    }
+                    if (tUrl) {
+                        thumbHtml = `<img src="${tUrl}" class="fe-thumbnail">`;
+                    }
+                }
+
+                let imageHtml = "";
+                if (embed.imageUrl) {
+                    let iUrl = embed.imageUrl;
+                    if (iUrl.startsWith('attachment://')) {
+                        const fName = iUrl.replace('attachment://', '');
+                        let foundFile = findFileByName(fName);
+                        if (foundFile) {
+                            iUrl = foundFile.objectUrl;
+                        } else {
+                            iUrl = ""; // Blank URL if file gets deleted to avoid rendering a broken box
+                        }
+                    }
+                    if (iUrl) {
+                        imageHtml = `<img src="${iUrl}" class="fe-image">`;
+                    }
+                }
 
                 let footerHtml = "";
                 if (embed.footerText || embed.footerIcon) {
@@ -3533,7 +3894,11 @@
                 `;
 
                 if (typeof DOMPurify !== 'undefined') {
-                    embedBlockHtml = DOMPurify.sanitize(embedBlockHtml, { ADD_ATTR: ['target', 'rel'] });
+                    // Update regex so DOMPurify doesn't strip blob:// or attachment:// URIs used in rendering attachments
+                    embedBlockHtml = DOMPurify.sanitize(embedBlockHtml, {
+                        ADD_ATTR: ['target', 'rel'],
+                        ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|blob|data|attachment):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
+                    });
                 }
 
                 previewContainer.innerHTML += embedBlockHtml;
@@ -3568,7 +3933,7 @@
         function getCleanWebhookUrl() {
             if (!appState.webhookUrl) return "";
             let url = appState.webhookUrl.trim();
-            url = url.split('?')[0]; 
+            url = url.split('?')[0];
             return url.replace(/\/$/, "");
         }
 
@@ -3634,6 +3999,7 @@
                     const loaded = JSON.parse(e.target.result);
                     appState = loaded;
                     if (!appState.embeds) appState.embeds = [];
+                    appEmbedFiles = appState.embeds.map(() => []);
                     renderEditor();
                     alert("Config loaded successfully!");
                 } catch (err) {
@@ -3646,7 +4012,7 @@
         }
 
         // --- HTTP Request Payload Packaging ---
-        function toggleSendButton() { 
+        function toggleSendButton() {
             document.getElementById('sendBtn').disabled = !document.getElementById('forgiveCheckbox').checked;
         }
 
@@ -3699,12 +4065,17 @@
                 }
             };
 
-            // Multiplex request based on existing file queue limits
-            if (appFiles.length > 0) {
+            // Multiplex request based on existing file queue limits across Global and Embed sources
+            let allFilesToUpload = [...appFiles];
+            appEmbedFiles.forEach(arr => {
+                if (arr) allFilesToUpload.push(...arr);
+            });
+
+            if (allFilesToUpload.length > 0) {
                 const formData = new FormData();
                 formData.append('payload_json', JSON.stringify(payload));
 
-                appFiles.forEach((f, i) => {
+                allFilesToUpload.forEach((f, i) => {
                     formData.append(`files[${i}]`, f.file, f.name);
                 });
                 fetchOptions.body = formData;
@@ -3717,10 +4088,10 @@
                 const res = await fetch(proxyUrl, fetchOptions);
                 if (res.ok) {
                     btn.innerText = "Sent Successfully!";
-                } else { 
+                } else {
                     const errorText = await res.text();
                     alert("Error: " + errorText);
-                    btn.innerText = "Error (Check URL)"; 
+                    btn.innerText = "Error (Check URL)";
                 }
             } catch (err) { alert("Network Error. Check console."); btn.innerText = "Failed"; }
 
