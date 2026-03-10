@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fluxer Webhook Studio Pro</title>
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fluxerstatic.com https://cdn.discordapp.com https://raw.githubusercontent.com; img-src * data: blob:; font-src *; connect-src *;">
+        content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fluxerstatic.com https://fluxerusercontent.com https://cdn.discordapp.com https://raw.githubusercontent.com; img-src * data: blob:; font-src *; connect-src *;">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <link rel="icon" href="data:,">
 
@@ -3608,11 +3608,10 @@
             });
 
             // Handles animated and static custom emojis (<:name:id> or <a:name:id>)
-            // Tries fluxerstatic.com first, if that fails it tries Discord CDN.
+            // Uses the new Fluxer format. Fallback to Discord CDN if missing.
             parsed = parsed.replace(/<a?:([a-zA-Z0-9_]+):(\d+)>/g, (match, name, id) => {
                 const isAnimated = match.startsWith('<a:');
-                const ext = isAnimated ? 'gif' : 'png';
-                return `<img src="https://fluxerstatic.com/emojis/${id}.${ext}" alt=":${name}:" title=":${name}:" class="f-custom-emoji" onerror="this.onerror=null; this.src='https://cdn.discordapp.com/emojis/${id}.${ext}?size=44';">`;
+                return `<img src="https://fluxerusercontent.com/emojis/${id}.webp?animated=${isAnimated}&size=44&quality=lossless" alt=":${name}:" title=":${name}:" class="f-custom-emoji" onerror="this.onerror=null; this.src='https://cdn.discordapp.com/emojis/${id}.${isAnimated ? 'gif' : 'webp'}?size=44';">`;
             });
 
             if (parsed.includes('>>> ')) {
@@ -3951,8 +3950,8 @@
             let fetchOptions = {
                 method: fetchMethod,
                 headers: {
-                    "X-Target-Url": targetUrl,
-                    "X-HTTP-Method-Override": fetchMethod // Explicitly tell proxies to process this as a PATCH if editing
+                    "X-Target-Url": targetUrl
+                    // Removed X-HTTP-Method-Override to fix CORS policy blocks on the proxy side
                 }
             };
 
