@@ -3804,7 +3804,11 @@
         // --- I/O File Processing (Save/Load Configuration) ---
         function getCleanWebhookUrl() {
             if (!appState.webhookUrl) return "";
-            return appState.webhookUrl.trim().replace(/\/$/, "");
+            let url = appState.webhookUrl.trim();
+            // Remove any existing query parameters from the base url
+            url = url.split('?')[0];
+            // Remove trailing slashes
+            return url.replace(/\/$/, "");
         }
 
         function saveConfig() {
@@ -3901,8 +3905,8 @@
             let fetchMethod = "POST";
 
             if (isEdit) {
-                // If user pasted a full URL, split and grab the last part (the ID)
-                let rawId = appState.messageId.trim();
+                // Remove trailing slash, then extract ONLY the digits at the end of the string
+                let rawId = appState.messageId.trim().replace(/\/$/, "");
                 let match = rawId.match(/\d+$/);
                 let parsedMsgId = match ? match[0] : rawId;
 
@@ -3951,7 +3955,6 @@
                 method: fetchMethod,
                 headers: {
                     "X-Target-Url": targetUrl
-                    // Removed X-HTTP-Method-Override to fix CORS policy blocks on the proxy side
                 }
             };
 
