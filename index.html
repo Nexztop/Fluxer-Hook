@@ -319,14 +319,19 @@
             font-size: 14px;
             cursor: pointer;
             width: 100%;
-            text-align: left;
+            text-align: center;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             transition: all 0.3s;
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary:not(:disabled):hover {
             background: rgba(255, 255, 255, 0.15);
         }
 
@@ -781,20 +786,25 @@
             text-decoration: underline;
         }
 
-        .fe-thumbnail {
-            width: 80px;
-            height: 80px;
-            border-radius: 4px;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
         .fe-image {
             width: 100%;
             border-radius: 4px;
             margin-top: 16px;
             max-height: 400px;
             object-fit: cover;
+        }
+
+        .fe-attachment {
+            margin-top: 8px;
+            max-width: 100%;
+        }
+
+        .fe-attachment img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: #2b2d31;
         }
 
         .fe-footer {
@@ -2740,15 +2750,53 @@
                             <input style="flex:1;" type="text" id="avatar" placeholder="https://..."
                                 oninput="updateState('avatar', this.value)" />
                             <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;"
-                                onclick="triggerImageUpload(null, 'avatar')" title="Upload to ImgBB">📤</button>
+                                onclick="triggerImageUpload(null, 'avatar', false, this)"
+                                title="Upload to ImgBB">📤</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="glass-card">
-                    <label>Message Content</label>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px;">
+                        <label style="margin-bottom: 0;">Message Content</label>
+                        <button class="btn-secondary" style="padding: 4px 10px; width: auto; font-size: 11px;"
+                            onclick="triggerImageUpload(null, 'content', true, this)"
+                            title="Append an ImgBB Image URL to the content">
+                            📤 Upload Image to Content
+                        </button>
+                    </div>
                     <textarea id="content" placeholder="Hello! (you can use) ||spoilers||, **bold**, or > [!NOTE]"
                         oninput="updateState('content', this.value)"></textarea>
+                </div>
+
+                <div class="glass-card">
+                    <label>Message Attachments (Files & Zips) - 25MB Max</label>
+                    <div id="fileListContainer"></div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <input type="file" id="fileInputAttach" style="display: none;" multiple
+                            onchange="handleFileSelect(event)">
+
+                        <button class="btn-secondary" style="flex: 1; justify-content: center; padding: 12px;"
+                            onclick="document.getElementById('fileInputAttach').click()">
+                            <i class="octicon octicon-file"></i> Add Files
+                        </button>
+
+                        <button class="btn-secondary"
+                            style="flex: 0; padding: 12px 20px; text-align: center; justify-content: center;"
+                            onclick="triggerPaste()" title="Or press Ctrl+V anywhere">
+                            Clipboard
+                        </button>
+
+                        <button class="btn-danger" style="flex: 0; border-radius: 99px; padding: 12px 20px;"
+                            onclick="clearFiles()">
+                            <i class="octicon octicon-trashcan"></i> Clear
+                        </button>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: 8px;">
+                        Files uploaded here are processed by your browser and will reset if you refresh the page.
+                    </div>
                 </div>
 
                 <div id="embedsContainer"></div>
@@ -2789,6 +2837,8 @@
                             </div>
                             <div class="f-text" id="prevContent"></div>
                             <div id="prevEmbedsContainer"></div>
+                            <div id="prevAttachmentsContainer"
+                                style="margin-top: 16px; display: flex; flex-direction: column; gap: 16px;"></div>
                         </div>
                     </div>
                 </div>
@@ -2977,13 +3027,14 @@
             content: "Welcome to Fluxer Webhook Studio Pro! \n\n> [!TIP]\n> This is a default template to show off basic markdown capabilities. Use the `Backups` button above to load your saved configurations or start from an entirely blank slate!",
             embeds: [{
                 authorName: "Studio Guided Template", authorUrl: "", authorIcon: "",
-                title: "Example Embed Layout", url: "", description: "This is a great place to start your webhook design. You can modify colors, add fields, or inject > [!NOTE]\n> custom admonitions inside descriptions.", color: "#5865F2",
-                imageUrl: "", thumbnailUrl: "", footerText: "Made with Fluxer Studio Pro", footerIcon: "", fields: []
+                title: "Example Embed Layout", url: "", description: "This is a great place to start your webhook design. You can modify colors, add fields, or inject standard blockquotes.", color: "#5865F2",
+                imageUrl: "", footerText: "Made with Fluxer Studio Pro", footerIcon: "", fields: []
             }]
         };
 
         let appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
         let backupsData = {};
+        let appFiles = []; // Restored file array for main message attachments
 
         function saveToLocalStorage() {
             try {
@@ -3068,6 +3119,7 @@
         function loadBackup(name) {
             if (confirm(`Are you sure you want to load "${name}"? This will overwrite your current active editor view.`)) {
                 appState = JSON.parse(JSON.stringify(backupsData[name]));
+                clearFiles();
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
@@ -3085,6 +3137,7 @@
         function clearAllWorkspace() {
             if (confirm("Are you absolutely sure you want to completely clear the editor? This gives you a blank slate. Unsaved changes will be lost.")) {
                 appState = { webhookUrl: "", username: "", avatar: "", content: "", embeds: [] };
+                clearFiles();
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
@@ -3094,6 +3147,7 @@
         function loadDefaultTemplate() {
             if (confirm("Are you sure you want to load the default template? Your current editor view will be overwritten.")) {
                 appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
+                clearFiles();
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
@@ -3310,8 +3364,85 @@
         }
 
 
+        // --- File Handling for Global Attachments ---
+        function handleFileSelect(e) {
+            if (e.target.files && e.target.files.length > 0) { addFiles(e.target.files); }
+            e.target.value = "";
+        }
+
+        function addFiles(fileList) {
+            for (let i = 0; i < fileList.length; i++) {
+                const file = fileList[i];
+                const objectUrl = URL.createObjectURL(file);
+                appFiles.push({ name: file.name, type: file.type, file: file, objectUrl: objectUrl });
+            }
+            renderEditorFiles();
+            renderPreview();
+        }
+
+        function removeFile(index) {
+            URL.revokeObjectURL(appFiles[index].objectUrl);
+            appFiles.splice(index, 1);
+            renderEditorFiles();
+            renderPreview();
+        }
+
+        function clearFiles() {
+            appFiles.forEach(f => URL.revokeObjectURL(f.objectUrl));
+            appFiles = [];
+            renderEditorFiles();
+            renderPreview();
+        }
+
+        async function triggerPaste() {
+            try {
+                const clipboardItems = await navigator.clipboard.read();
+                let files = [];
+                for (const item of clipboardItems) {
+                    for (const type of item.types) {
+                        if (type.startsWith('image/')) {
+                            const blob = await item.getType(type);
+                            files.push(new File([blob], "pasted_image.png", { type }));
+                        }
+                    }
+                }
+                if (files.length > 0) addFiles(files);
+                else alert("No image found in your clipboard right now.");
+            } catch (err) {
+                alert("Browser blocked direct clipboard access. Try pressing Ctrl+V instead on your keyboard!");
+            }
+        }
+
+        document.addEventListener('paste', (e) => {
+            if (e.clipboardData && e.clipboardData.files.length > 0) {
+                addFiles(e.clipboardData.files);
+            }
+        });
+
+        function renderEditorFiles() {
+            const container = document.getElementById('fileListContainer');
+            if (!container) return;
+            container.innerHTML = "";
+            appFiles.forEach((f, i) => {
+                container.innerHTML += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.02); padding: 15px 20px; border-radius: 24px; margin-bottom: 8px; border: 1px solid var(--glass-border);">
+                        <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; white-space: nowrap;">
+                            ${f.type.startsWith('image/')
+                        ? `<img src="${f.objectUrl}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">`
+                        : `<div style="font-size: 20px; flex-shrink: 0;">📄</div>`}
+                            <span style="font-size: 14px; font-weight: bold; color: white; text-overflow: ellipsis; overflow: hidden; max-width: 300px;">${f.name}</span>
+                        </div>
+                        <button class="btn-danger" style="margin: 0; padding: 10px 18px; font-size: 13px; border-radius: 99px; width: auto; justify-content: center;" onclick="removeFile(${i})">
+                            <i class="octicon octicon-trashcan"></i> Delete
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+
         // --- Image API Upload Integration ---
-        function triggerImageUpload(eIndex, field) {
+        function triggerImageUpload(eIndex, field, isAppend = false, btnElement = null) {
             if (IMGBB_API_KEY === 'YOUR_IMGBB_API_KEY_HERE') {
                 alert("You need to add an ImgBB API Key to the code first! Check the HTML file instructions.");
                 return;
@@ -3324,16 +3455,22 @@
                 const file = e.target.files[0];
                 if (!file) return;
 
-                // Cache original text so we can revert if upload fails
+                const originalBtnText = btnElement ? btnElement.innerText : "";
+                if (btnElement) {
+                    btnElement.innerText = "⏳ Uploading...";
+                    btnElement.disabled = true;
+                }
+
                 const originalText = eIndex === null ? appState[field] : appState.embeds[eIndex][field];
 
-                // Show loading state directly in the text box
-                if (eIndex === null) {
-                    updateState(field, "Uploading to ImgBB...");
-                    document.getElementById(field).value = "Uploading to ImgBB...";
-                } else {
-                    updateEmbed(eIndex, field, "Uploading to ImgBB...");
-                    renderEditor();
+                if (!isAppend) {
+                    if (eIndex === null) {
+                        updateState(field, "Uploading to ImgBB...");
+                        document.getElementById(field).value = "Uploading to ImgBB...";
+                    } else {
+                        updateEmbed(eIndex, field, "Uploading to ImgBB...");
+                        renderEditor();
+                    }
                 }
 
                 try {
@@ -3349,7 +3486,9 @@
 
                     const data = await res.json();
 
-                    if (eIndex === null) {
+                    if (isAppend) {
+                        appState[field] = (appState[field] ? appState[field] + "\n" : "") + data.data.url;
+                    } else if (eIndex === null) {
                         updateState(field, data.data.url);
                         document.getElementById(field).value = data.data.url;
                     } else {
@@ -3358,14 +3497,21 @@
                 } catch (err) {
                     console.error(err);
                     alert("Upload failed! Check console or ensure your ImgBB API Key is correct.");
-                    if (eIndex === null) {
-                        updateState(field, originalText);
-                        document.getElementById(field).value = originalText;
-                    } else {
-                        updateEmbed(eIndex, field, originalText);
+                    if (!isAppend) {
+                        if (eIndex === null) {
+                            updateState(field, originalText);
+                            document.getElementById(field).value = originalText;
+                        } else {
+                            updateEmbed(eIndex, field, originalText);
+                        }
                     }
+                } finally {
+                    if (btnElement) {
+                        btnElement.innerText = originalBtnText;
+                        btnElement.disabled = false;
+                    }
+                    renderEditor();
                 }
-                renderEditor();
             };
             input.click();
         }
@@ -3415,7 +3561,7 @@
                             <label>Author Icon URL</label>
                             <div style="display: flex; gap: 8px;">
                                 <input style="flex:1;" type="text" placeholder="https://..." value="${embed.authorIcon || ''}" oninput="updateEmbed(${eIndex}, 'authorIcon', this.value)" />
-                                <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'authorIcon')" title="Upload to ImgBB">📤</button>
+                                <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'authorIcon', false, this)" title="Upload to ImgBB">📤</button>
                             </div>
                         </div>
 
@@ -3427,20 +3573,11 @@
                         <label>Embed Description</label>
                         <textarea placeholder="Description..." oninput="updateEmbed(${eIndex}, 'description', this.value)">${embed.description || ''}</textarea>
                         
-                        <div class="row-inputs" style="margin-top: 10px;">
-                            <div>
-                                <label>Image URL (Large)</label>
-                                <div style="display: flex; gap: 8px;">
-                                    <input style="flex:1;" type="text" placeholder="https://..." value="${embed.imageUrl || ''}" oninput="updateEmbed(${eIndex}, 'imageUrl', this.value)" />
-                                    <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'imageUrl')" title="Upload to ImgBB">📤</button>
-                                </div>
-                            </div>
-                            <div>
-                                <label>Thumbnail URL (Small)</label>
-                                <div style="display: flex; gap: 8px;">
-                                    <input style="flex:1;" type="text" placeholder="https://..." value="${embed.thumbnailUrl || ''}" oninput="updateEmbed(${eIndex}, 'thumbnailUrl', this.value)" />
-                                    <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'thumbnailUrl')" title="Upload to ImgBB">📤</button>
-                                </div>
+                        <div style="margin-top: 10px;">
+                            <label>Image URL (Large)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input style="flex:1;" type="text" placeholder="https://..." value="${embed.imageUrl || ''}" oninput="updateEmbed(${eIndex}, 'imageUrl', this.value)" />
+                                <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'imageUrl', false, this)" title="Upload to ImgBB">📤</button>
                             </div>
                         </div>
 
@@ -3450,7 +3587,7 @@
                                 <label>Footer Icon URL</label>
                                 <div style="display: flex; gap: 8px;">
                                     <input style="flex:1;" type="text" placeholder="https://..." value="${embed.footerIcon || ''}" oninput="updateEmbed(${eIndex}, 'footerIcon', this.value)" />
-                                    <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'footerIcon')" title="Upload to ImgBB">📤</button>
+                                    <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'footerIcon', false, this)" title="Upload to ImgBB">📤</button>
                                 </div>
                             </div>
                         </div>
@@ -3482,6 +3619,7 @@
                 container.innerHTML += embedHTML;
             });
 
+            renderEditorFiles();
             renderPreview();
         }
 
@@ -3490,7 +3628,7 @@
         function setEmbedColor(eIndex, hex) { appState.embeds[eIndex].color = hex; renderEditor(); }
 
         function addEmbed() {
-            appState.embeds.push({ authorName: "", authorUrl: "", authorIcon: "", title: "", url: "", description: "", color: "#5865F2", imageUrl: "", thumbnailUrl: "", footerText: "", footerIcon: "", fields: [] });
+            appState.embeds.push({ authorName: "", authorUrl: "", authorIcon: "", title: "", url: "", description: "", color: "#5865F2", imageUrl: "", footerText: "", footerIcon: "", fields: [] });
             renderEditor();
         }
 
@@ -3504,7 +3642,7 @@
         function removeField(eIndex, fIndex) { appState.embeds[eIndex].fields.splice(fIndex, 1); renderEditor(); }
 
         // --- Custom DOM Modifier for Markdown Generation ---
-        function parseFluxerMarkdown(text) {
+        function parseFluxerMarkdown(text, allowAdmonitions = true) {
             if (!text) return "";
             let parsed = text;
 
@@ -3538,47 +3676,49 @@
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = parsed;
 
-                // Safely translate generic blockquotes containing Admonition keys into styled component blocks 
-                const admonitions = {
-                    "NOTE": { cls: "adm-note", title: "Note", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>` },
-                    "TIP": { cls: "adm-tip", title: "Tip", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zM9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1z"/></svg>` },
-                    "IMPORTANT": { cls: "adm-important", title: "Important", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>` },
-                    "WARNING": { cls: "adm-warn", title: "Warning", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>` },
-                    "CAUTION": { cls: "adm-danger", title: "Caution", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>` }
-                };
+                // Render Admonitions only if allowed (i.e. not in an embed description)
+                if (allowAdmonitions) {
+                    const admonitions = {
+                        "NOTE": { cls: "adm-note", title: "Note", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>` },
+                        "TIP": { cls: "adm-tip", title: "Tip", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zM9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1z"/></svg>` },
+                        "IMPORTANT": { cls: "adm-important", title: "Important", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>` },
+                        "WARNING": { cls: "adm-warn", title: "Warning", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>` },
+                        "CAUTION": { cls: "adm-danger", title: "Caution", icon: `<svg class="adm-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>` }
+                    };
 
-                const blockquotes = tempDiv.querySelectorAll('blockquote');
-                blockquotes.forEach(bq => {
-                    const firstP = bq.querySelector('p');
-                    if (!firstP) return;
+                    const blockquotes = tempDiv.querySelectorAll('blockquote');
+                    blockquotes.forEach(bq => {
+                        const firstP = bq.querySelector('p');
+                        if (!firstP) return;
 
-                    let html = firstP.innerHTML;
-                    for (const [key, data] of Object.entries(admonitions)) {
-                        const tag = `[!${key}]`;
-                        if (html.startsWith(tag)) {
-                            let bodyContent = html.substring(tag.length).replace(/^(?:<br\s*\/?>|\s)+/i, '');
-                            firstP.innerHTML = bodyContent;
+                        let html = firstP.innerHTML;
+                        for (const [key, data] of Object.entries(admonitions)) {
+                            const tag = `[!${key}]`;
+                            if (html.startsWith(tag)) {
+                                let bodyContent = html.substring(tag.length).replace(/^(?:<br\s*\/?>|\s)+/i, '');
+                                firstP.innerHTML = bodyContent;
 
-                            const admDiv = document.createElement('div');
-                            admDiv.className = `admonition ${data.cls}`;
+                                const admDiv = document.createElement('div');
+                                admDiv.className = `admonition ${data.cls}`;
 
-                            const admTitle = document.createElement('div');
-                            admTitle.className = 'adm-title';
-                            admTitle.innerHTML = `${data.icon} <span>${data.title}</span>`;
+                                const admTitle = document.createElement('div');
+                                admTitle.className = 'adm-title';
+                                admTitle.innerHTML = `${data.icon} <span>${data.title}</span>`;
 
-                            const admBody = document.createElement('div');
-                            admBody.className = 'adm-body';
+                                const admBody = document.createElement('div');
+                                admBody.className = 'adm-body';
 
-                            while (bq.firstChild) { admBody.appendChild(bq.firstChild); }
+                                while (bq.firstChild) { admBody.appendChild(bq.firstChild); }
 
-                            admDiv.appendChild(admTitle);
-                            admDiv.appendChild(admBody);
+                                admDiv.appendChild(admTitle);
+                                admDiv.appendChild(admBody);
 
-                            bq.replaceWith(admDiv);
-                            break;
+                                bq.replaceWith(admDiv);
+                                break;
+                            }
                         }
-                    }
-                });
+                    });
+                }
 
                 const latexBlocks = tempDiv.querySelectorAll('code.language-latex');
                 latexBlocks.forEach(block => {
@@ -3607,7 +3747,8 @@
             if (appState.avatar) avDiv.style.backgroundImage = `url('${appState.avatar}')`;
             else { avDiv.style.backgroundImage = 'none'; avDiv.style.backgroundColor = '#5865F2'; }
 
-            let parsedContent = parseFluxerMarkdown(appState.content);
+            // Allow admonitions in main content
+            let parsedContent = parseFluxerMarkdown(appState.content, true);
             if (typeof DOMPurify !== 'undefined') parsedContent = DOMPurify.sanitize(parsedContent);
             document.getElementById('prevContent').innerHTML = parsedContent;
 
@@ -3615,7 +3756,7 @@
             previewContainer.innerHTML = "";
 
             appState.embeds.forEach(embed => {
-                if (!embed.authorName && !embed.title && !embed.description && embed.fields.length === 0 && !embed.imageUrl && !embed.thumbnailUrl && !embed.footerText) return;
+                if (!embed.authorName && !embed.title && !embed.description && embed.fields.length === 0 && !embed.imageUrl && !embed.footerText) return;
 
                 let authorHtml = "";
                 if (embed.authorName) {
@@ -3633,7 +3774,6 @@
                         : `<div class="fe-title">${embed.title}</div>`;
                 }
 
-                let thumbHtml = embed.thumbnailUrl ? `<img src="${embed.thumbnailUrl}" class="fe-thumbnail">` : "";
                 let imageHtml = embed.imageUrl ? `<img src="${embed.imageUrl}" class="fe-image">` : "";
 
                 let footerHtml = "";
@@ -3648,26 +3788,27 @@
                     fieldsHtml = `<div class="fe-fields">`;
                     embed.fields.forEach(f => {
                         if (!f.name && !f.value) return;
+                        // DISALLOW admonitions in fields
                         fieldsHtml += `
                             <div class="fe-field ${f.inline ? 'inline' : ''}">
-                                <div class="fe-field-name">${parseFluxerMarkdown(f.name || '\u200B')}</div>
-                                <div class="fe-field-value">${parseFluxerMarkdown(f.value || '\u200B')}</div>
+                                <div class="fe-field-name">${parseFluxerMarkdown(f.name || '\u200B', false)}</div>
+                                <div class="fe-field-value">${parseFluxerMarkdown(f.value || '\u200B', false)}</div>
                             </div>
                         `;
                     });
                     fieldsHtml += `</div>`;
                 }
 
+                // DISALLOW admonitions in embed descriptions to mirror live server
                 let embedBlockHtml = `
                     <div class="f-embed" style="border-left-color: ${embed.color};">
                         <div class="fe-content-wrapper">
                             <div class="fe-main-content">
                                 ${authorHtml}
                                 ${titleHtml}
-                                ${embed.description ? `<div class="fe-desc">${parseFluxerMarkdown(embed.description)}</div>` : ''}
+                                ${embed.description ? `<div class="fe-desc">${parseFluxerMarkdown(embed.description, false)}</div>` : ''}
                                 ${fieldsHtml}
                             </div>
-                            ${thumbHtml}
                         </div>
                         ${imageHtml}
                         ${footerHtml}
@@ -3681,6 +3822,25 @@
                 }
                 previewContainer.innerHTML += embedBlockHtml;
             });
+
+            // Re-render Global Attachment file badges
+            const attachmentsContainer = document.getElementById('prevAttachmentsContainer');
+            if (attachmentsContainer) {
+                attachmentsContainer.innerHTML = "";
+                appFiles.forEach(f => {
+                    if (f.type.startsWith('image/')) {
+                        attachmentsContainer.innerHTML += `<div class="fe-attachment"><img src="${f.objectUrl}" alt="attachment"></div>`;
+                    } else {
+                        attachmentsContainer.innerHTML += `
+                            <div style="background: #2b2d31; padding: 12px; border-radius: 4px; border: 1px solid #1e1f22; display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; max-width: 400px;">
+                                <span style="font-size: 24px;">📄</span>
+                                <span style="color: #00AFF4; font-size: 14px; text-decoration: none; word-break: break-all;">${f.name}</span>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
             saveToLocalStorage();
         }
 
@@ -3738,6 +3898,7 @@
                 try {
                     appState = JSON.parse(e.target.result);
                     if (!appState.embeds) appState.embeds = [];
+                    clearFiles();
                     renderEditor();
                     alert("Config loaded successfully!");
                 } catch (err) { alert("Invalid JSON file!"); }
@@ -3770,7 +3931,7 @@
             };
 
             appState.embeds.forEach(e => {
-                if (!e.authorName && !e.title && !e.description && e.fields.length === 0 && !e.imageUrl && !e.thumbnailUrl && !e.footerText) return;
+                if (!e.authorName && !e.title && !e.description && e.fields.length === 0 && !e.imageUrl && !e.footerText) return;
 
                 let formattedEmbed = {
                     title: e.title || undefined, url: e.url || undefined, description: e.description || undefined, color: parseInt(e.color.replace('#', ''), 16), fields: []
@@ -3783,7 +3944,6 @@
                 }
 
                 if (e.imageUrl) formattedEmbed.image = { url: e.imageUrl };
-                if (e.thumbnailUrl) formattedEmbed.thumbnail = { url: e.thumbnailUrl };
                 if (e.footerText || e.footerIcon) {
                     formattedEmbed.footer = {};
                     if (e.footerText) formattedEmbed.footer.text = e.footerText;
@@ -3796,15 +3956,34 @@
                 payload.embeds.push(formattedEmbed);
             });
 
-            try {
-                const res = await fetch(proxyUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Target-Url": targetUrl
-                    },
-                    body: JSON.stringify(payload)
+            let fetchOptions = {
+                method: "POST",
+                headers: {
+                    "X-Target-Url": targetUrl
+                }
+            };
+
+            // Process any local global attachments
+            if (appFiles.length > 0) {
+                payload.attachments = appFiles.map((f, i) => ({
+                    id: i,
+                    filename: f.name
+                }));
+
+                const formData = new FormData();
+                formData.append('payload_json', JSON.stringify(payload));
+
+                appFiles.forEach((f, i) => {
+                    formData.append(`files[${i}]`, f.file, f.name);
                 });
+                fetchOptions.body = formData;
+            } else {
+                fetchOptions.headers["Content-Type"] = "application/json";
+                fetchOptions.body = JSON.stringify(payload);
+            }
+
+            try {
+                const res = await fetch(proxyUrl, fetchOptions);
 
                 if (res.ok) {
                     btn.innerText = "Sent Successfully!";
