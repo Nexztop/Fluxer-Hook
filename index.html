@@ -1454,7 +1454,7 @@
             top: 0;
             width: 100%;
             border-radius: 0;
-            background: rgba(5, 5, 5, 0.95);
+            background: rgba(5, 5, 0, 0.95);
             border-color: rgba(58, 130, 247, 0.3);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
@@ -2286,6 +2286,13 @@
                         <label>File Name</label>
                         <input type="text" id="saveFileName" value="fluxer_config" />
                     </div>
+
+                    <div
+                        style="font-size: 12px; color: #F0B132; margin-bottom: 20px; background: rgba(240, 177, 50, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid #F0B132;">
+                        <i class="octicon octicon-info"></i> Note: Local file attachments cannot be saved in export
+                        files. Internal image links will be removed to prevent broken embeds.
+                    </div>
+
                     <div class="glass-card" style="margin-bottom: 20px;">
                         <label class="checkbox-wrapper" style="align-items: center; margin-bottom: 0;">
                             <input type="checkbox" id="includeWebhookCheckbox">
@@ -2886,6 +2893,57 @@
             .catch(err => console.log("Failed to load emoji map", err));
 
 
+        // --- IndexedDB for File Persistence ---
+        const dbName = "FluxerStudioDB";
+        const dbVersion = 1;
+        let db;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, dbVersion);
+                request.onerror = (event) => reject("DB Error");
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    resolve();
+                };
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains("files")) {
+                        db.createObjectStore("files", { keyPath: "id" });
+                    }
+                };
+            });
+        }
+
+        async function saveFilesToDB() {
+            if (!db) return;
+            const transaction = db.transaction(["files"], "readwrite");
+            const store = transaction.objectStore("files");
+
+            const gFiles = appFiles.map(f => ({ name: f.name, type: f.type, file: f.file }));
+            const eFiles = appEmbedFiles.map(arr => arr ? arr.map(f => ({ name: f.name, type: f.type, file: f.file })) : []);
+
+            store.put({ id: "current_workspace", globalFiles: gFiles, embedFiles: eFiles });
+        }
+
+        async function loadFilesFromDB() {
+            if (!db) return;
+            const transaction = db.transaction(["files"], "readonly");
+            const store = transaction.objectStore("files");
+            const request = store.get("current_workspace");
+
+            request.onsuccess = (event) => {
+                const data = event.target.result;
+                if (data) {
+                    appFiles = data.globalFiles.map(f => ({ ...f, objectUrl: URL.createObjectURL(f.file) }));
+                    appEmbedFiles = data.embedFiles.map(arr => arr.map(f => ({ ...f, objectUrl: URL.createObjectURL(f.file) })));
+                    renderEditorFiles();
+                    renderEditor();
+                }
+            };
+        }
+
+
         // --- Navigation and Scroll Handlers ---
         function launchEditor(e) {
             if (e) e.preventDefault();
@@ -3013,7 +3071,7 @@
             animateParticles();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             document.body.classList.add('lp-scroll-mode');
             const glow = document.getElementById('mouseGlow');
             window.addEventListener('mousemove', (e) => {
@@ -3025,6 +3083,20 @@
                     glow.style.opacity = '0';
                 }
             });
+
+            loadFromLocalStorage();
+            renderEditor();
+            initColorWheel();
+            try {
+                document.getElementById('staticMathPreview').innerHTML = katex.renderToString("\\int_0^\\infty e^{-x} dx", { displayMode: true });
+            } catch (e) { }
+
+            try {
+                await initDB();
+                await loadFilesFromDB();
+            } catch (e) {
+                console.error("IndexedDB Initialization failed", e);
+            }
         });
 
         // --- Core Application State ---
@@ -3040,8 +3112,8 @@
 
         let appState = JSON.parse(JSON.stringify(DEFAULT_TEMPLATE));
         let backupsData = {};
-        let appFiles = []; // Temporary cache for local objectURLs (does not sync to local storage)
-        let appEmbedFiles = []; // Holds arrays of file objects mapped per embed index
+        let appFiles = [];
+        let appEmbedFiles = [];
 
         function saveToLocalStorage() {
             try {
@@ -3156,6 +3228,7 @@
             if (confirm(`Are you sure you want to load "${name}"? This will overwrite your current active editor view.`)) {
                 appState = JSON.parse(JSON.stringify(backupsData[name]));
                 appEmbedFiles = appState.embeds.map(() => []);
+                clearFiles();
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
@@ -3181,6 +3254,7 @@
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
+                saveFilesToDB();
             }
         }
 
@@ -3192,6 +3266,7 @@
                 renderEditor();
                 document.getElementById('backupsModal').style.display = 'none';
                 saveToLocalStorage();
+                saveFilesToDB();
             }
         }
 
@@ -3416,6 +3491,7 @@
                 const objectUrl = URL.createObjectURL(file);
                 appFiles.push({ name: file.name, type: file.type, file: file, objectUrl: objectUrl });
             }
+            saveFilesToDB();
             renderEditorFiles();
             renderPreview();
         }
@@ -3423,6 +3499,7 @@
         function removeFile(index) {
             URL.revokeObjectURL(appFiles[index].objectUrl);
             appFiles.splice(index, 1);
+            saveFilesToDB();
             renderEditorFiles();
             renderPreview();
         }
@@ -3430,11 +3507,11 @@
         function clearFiles() {
             appFiles.forEach(f => URL.revokeObjectURL(f.objectUrl));
             appFiles = [];
+            saveFilesToDB();
             renderEditorFiles();
             renderPreview();
         }
 
-        // New Logic for Embed Specific Attachments
         function handleEmbedFileSelect(e, eIndex) {
             if (e.target.files && e.target.files.length > 0) {
                 if (!appEmbedFiles[eIndex]) appEmbedFiles[eIndex] = [];
@@ -3443,6 +3520,7 @@
                     const objectUrl = URL.createObjectURL(file);
                     appEmbedFiles[eIndex].push({ name: file.name, type: file.type, file: file, objectUrl: objectUrl });
                 }
+                saveFilesToDB();
                 renderEditor();
             }
             e.target.value = "";
@@ -3451,6 +3529,7 @@
         function removeEmbedFile(eIndex, fIndex) {
             URL.revokeObjectURL(appEmbedFiles[eIndex][fIndex].objectUrl);
             appEmbedFiles[eIndex].splice(fIndex, 1);
+            saveFilesToDB();
             renderEditor();
         }
 
@@ -3458,6 +3537,7 @@
             if (appEmbedFiles[eIndex]) {
                 appEmbedFiles[eIndex].forEach(f => URL.revokeObjectURL(f.objectUrl));
                 appEmbedFiles[eIndex] = [];
+                saveFilesToDB();
                 renderEditor();
             }
         }
@@ -3607,7 +3687,7 @@
 
                         <div style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
                             <label>Embed Attachments (Local Images)</label>
-                            <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Upload images here to prevent Discord link expiration. Use the buttons to quickly link them as the Embed Image or Thumbnail.</div>
+                            <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Upload images here to prevent external link expiration. Use the buttons to quickly link them as the Embed Image or Thumbnail.</div>
                             <div id="embedFileListContainer_${eIndex}">
                                 ${embedFilesHtml}
                             </div>
@@ -3665,6 +3745,7 @@
         function addEmbed() {
             appState.embeds.push({ authorName: "", authorUrl: "", authorIcon: "", title: "", url: "", description: "", color: "#5865F2", imageUrl: "", thumbnailUrl: "", footerText: "", footerIcon: "", fields: [] });
             appEmbedFiles.push([]); // Keep in sync
+            saveFilesToDB();
             renderEditor();
         }
 
@@ -3674,6 +3755,7 @@
                 appEmbedFiles[eIndex].forEach(f => URL.revokeObjectURL(f.objectUrl));
                 appEmbedFiles.splice(eIndex, 1);
             }
+            saveFilesToDB();
             renderEditor();
         }
 
@@ -3700,7 +3782,6 @@
             });
 
             // Handles animated and static custom emojis (<:name:id> or <a:name:id>)
-            // Uses the new Fluxer format. Fallback to Discord CDN if missing.
             parsed = parsed.replace(/<a?:([a-zA-Z0-9_]+):(\d+)>/g, (match, name, id) => {
                 const isAnimated = match.startsWith('<a:');
                 return `<img src="https://fluxerusercontent.com/emojis/${id}.webp?animated=${isAnimated}&size=44&quality=lossless" alt=":${name}:" title=":${name}:" class="f-custom-emoji" onerror="this.onerror=null; this.src='https://cdn.discordapp.com/emojis/${id}.${isAnimated ? 'gif' : 'webp'}?size=44';">`;
@@ -3953,6 +4034,12 @@
                 exportData.webhookUrl = "";
             }
 
+            // Clean up attachment URLs from the JSON so they don't export as broken links
+            exportData.embeds.forEach(embed => {
+                if (embed.imageUrl && embed.imageUrl.startsWith('attachment://')) embed.imageUrl = "";
+                if (embed.thumbnailUrl && embed.thumbnailUrl.startsWith('attachment://')) embed.thumbnailUrl = "";
+            });
+
             const jsonContent = JSON.stringify(exportData, null, 2);
 
             if ('showSaveFilePicker' in window && window.location.protocol !== 'file:') {
@@ -4028,7 +4115,10 @@
             btn.innerText = "Sending...";
 
             const payload = {
-                username: appState.username || undefined, avatar_url: appState.avatar || undefined, content: appState.content || undefined, embeds: []
+                username: appState.username || undefined,
+                avatar_url: appState.avatar || undefined,
+                content: appState.content || undefined,
+                embeds: []
             };
 
             appState.embeds.forEach(e => {
@@ -4072,6 +4162,12 @@
             });
 
             if (allFilesToUpload.length > 0) {
+                // FIXED: Map the attachments array to satisfy the API form body requirements
+                payload.attachments = allFilesToUpload.map((f, i) => ({
+                    id: i,
+                    filename: f.name
+                }));
+
                 const formData = new FormData();
                 formData.append('payload_json', JSON.stringify(payload));
 
@@ -4097,15 +4193,6 @@
 
             setTimeout(() => { btn.innerText = originalText; }, 2500);
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadFromLocalStorage();
-            renderEditor();
-            initColorWheel();
-            try {
-                document.getElementById('staticMathPreview').innerHTML = katex.renderToString("\\int_0^\\infty e^{-x} dx", { displayMode: true });
-            } catch (e) { }
-        });
 
         function toggleFabDelete() {
             const container = document.getElementById('fabDeleteContainer');
