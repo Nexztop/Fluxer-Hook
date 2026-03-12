@@ -2750,22 +2750,13 @@
                             <input style="flex:1;" type="text" id="avatar" placeholder="https://..."
                                 oninput="updateState('avatar', this.value)" />
                             <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;"
-                                onclick="triggerImageUpload(null, 'avatar', false, this)"
-                                title="Upload to ImgBB">📤</button>
+                                onclick="triggerImageUpload(null, 'avatar')" title="Upload to ImgBB">📤</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="glass-card">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px;">
-                        <label style="margin-bottom: 0;">Message Content</label>
-                        <button class="btn-secondary" style="padding: 4px 10px; width: auto; font-size: 11px;"
-                            onclick="triggerImageUpload(null, 'content', true, this)"
-                            title="Append an ImgBB Image URL to the content">
-                            📤 Upload Image to Content
-                        </button>
-                    </div>
+                    <label>Message Content</label>
                     <textarea id="content" placeholder="Hello! (you can use) ||spoilers||, **bold**, or > [!NOTE]"
                         oninput="updateState('content', this.value)"></textarea>
                 </div>
@@ -2795,7 +2786,8 @@
                         </button>
                     </div>
                     <div style="font-size: 11px; color: #888; margin-top: 8px;">
-                        Files uploaded here are processed by your browser and will reset if you refresh the page.
+                        Files uploaded here are processed by your browser. Do not exceed 25MB total to comply with
+                        server limits.
                     </div>
                 </div>
 
@@ -3402,7 +3394,8 @@
                     for (const type of item.types) {
                         if (type.startsWith('image/')) {
                             const blob = await item.getType(type);
-                            files.push(new File([blob], "pasted_image.png", { type }));
+                            // Generate a completely unique filename for each paste so the API accepts it
+                            files.push(new File([blob], "pasted_image_" + Date.now() + "_" + Math.floor(Math.random() * 1000) + ".png", { type }));
                         }
                     }
                 }
@@ -3415,7 +3408,17 @@
 
         document.addEventListener('paste', (e) => {
             if (e.clipboardData && e.clipboardData.files.length > 0) {
-                addFiles(e.clipboardData.files);
+                // Ensure pasted items get unique names via the event hook too
+                let fileList = [];
+                for (let i = 0; i < e.clipboardData.files.length; i++) {
+                    let f = e.clipboardData.files[i];
+                    if (f.name === 'image.png' || f.name.includes('pasted')) {
+                        fileList.push(new File([f], "pasted_image_" + Date.now() + "_" + i + ".png", { type: f.type }));
+                    } else {
+                        fileList.push(f);
+                    }
+                }
+                addFiles(fileList);
             }
         });
 
@@ -3442,7 +3445,7 @@
 
 
         // --- Image API Upload Integration ---
-        function triggerImageUpload(eIndex, field, isAppend = false, btnElement = null) {
+        function triggerImageUpload(eIndex, field) {
             if (IMGBB_API_KEY === 'YOUR_IMGBB_API_KEY_HERE') {
                 alert("You need to add an ImgBB API Key to the code first! Check the HTML file instructions.");
                 return;
@@ -3455,22 +3458,14 @@
                 const file = e.target.files[0];
                 if (!file) return;
 
-                const originalBtnText = btnElement ? btnElement.innerText : "";
-                if (btnElement) {
-                    btnElement.innerText = "⏳ Uploading...";
-                    btnElement.disabled = true;
-                }
-
                 const originalText = eIndex === null ? appState[field] : appState.embeds[eIndex][field];
 
-                if (!isAppend) {
-                    if (eIndex === null) {
-                        updateState(field, "Uploading to ImgBB...");
-                        document.getElementById(field).value = "Uploading to ImgBB...";
-                    } else {
-                        updateEmbed(eIndex, field, "Uploading to ImgBB...");
-                        renderEditor();
-                    }
+                if (eIndex === null) {
+                    updateState(field, "Uploading to ImgBB...");
+                    document.getElementById(field).value = "Uploading to ImgBB...";
+                } else {
+                    updateEmbed(eIndex, field, "Uploading to ImgBB...");
+                    renderEditor();
                 }
 
                 try {
@@ -3486,9 +3481,7 @@
 
                     const data = await res.json();
 
-                    if (isAppend) {
-                        appState[field] = (appState[field] ? appState[field] + "\n" : "") + data.data.url;
-                    } else if (eIndex === null) {
+                    if (eIndex === null) {
                         updateState(field, data.data.url);
                         document.getElementById(field).value = data.data.url;
                     } else {
@@ -3497,21 +3490,14 @@
                 } catch (err) {
                     console.error(err);
                     alert("Upload failed! Check console or ensure your ImgBB API Key is correct.");
-                    if (!isAppend) {
-                        if (eIndex === null) {
-                            updateState(field, originalText);
-                            document.getElementById(field).value = originalText;
-                        } else {
-                            updateEmbed(eIndex, field, originalText);
-                        }
+                    if (eIndex === null) {
+                        updateState(field, originalText);
+                        document.getElementById(field).value = originalText;
+                    } else {
+                        updateEmbed(eIndex, field, originalText);
                     }
-                } finally {
-                    if (btnElement) {
-                        btnElement.innerText = originalBtnText;
-                        btnElement.disabled = false;
-                    }
-                    renderEditor();
                 }
+                renderEditor();
             };
             input.click();
         }
@@ -3561,7 +3547,7 @@
                             <label>Author Icon URL</label>
                             <div style="display: flex; gap: 8px;">
                                 <input style="flex:1;" type="text" placeholder="https://..." value="${embed.authorIcon || ''}" oninput="updateEmbed(${eIndex}, 'authorIcon', this.value)" />
-                                <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'authorIcon', false, this)" title="Upload to ImgBB">📤</button>
+                                <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'authorIcon')" title="Upload to ImgBB">📤</button>
                             </div>
                         </div>
 
@@ -3577,7 +3563,7 @@
                             <label>Image URL (Large)</label>
                             <div style="display: flex; gap: 8px;">
                                 <input style="flex:1;" type="text" placeholder="https://..." value="${embed.imageUrl || ''}" oninput="updateEmbed(${eIndex}, 'imageUrl', this.value)" />
-                                <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'imageUrl', false, this)" title="Upload to ImgBB">📤</button>
+                                <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'imageUrl')" title="Upload to ImgBB">📤</button>
                             </div>
                         </div>
 
@@ -3587,7 +3573,7 @@
                                 <label>Footer Icon URL</label>
                                 <div style="display: flex; gap: 8px;">
                                     <input style="flex:1;" type="text" placeholder="https://..." value="${embed.footerIcon || ''}" oninput="updateEmbed(${eIndex}, 'footerIcon', this.value)" />
-                                    <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'footerIcon', false, this)" title="Upload to ImgBB">📤</button>
+                                    <button class="btn-secondary" style="flex:0; padding: 0 15px; width: auto;" onclick="triggerImageUpload(${eIndex}, 'footerIcon')" title="Upload to ImgBB">📤</button>
                                 </div>
                             </div>
                         </div>
@@ -3918,10 +3904,18 @@
             const btn = document.getElementById('sendBtn');
             const originalText = btn.innerText;
 
+            // CHECK: Enforce Fluxer 25MB Limit
+            let totalSize = appFiles.reduce((acc, f) => acc + f.file.size, 0);
+            if (totalSize > 25 * 1024 * 1024) { // 25MB strict limit
+                alert(`Error: Your attachments are ${(totalSize / (1024 * 1024)).toFixed(1)} MB total. Fluxer strictly limits uploads to 25MB per message. Please remove some files.`);
+                return;
+            }
+
             const targetUrl = `${getCleanWebhookUrl()}?wait=true`;
             const proxyUrl = "https://fluxer-proxy.pazanderson420.workers.dev/";
 
             btn.innerText = "Sending...";
+            btn.disabled = true;
 
             const payload = {
                 username: appState.username || undefined,
@@ -3966,7 +3960,7 @@
             // Process any local global attachments
             if (appFiles.length > 0) {
                 payload.attachments = appFiles.map((f, i) => ({
-                    id: i,
+                    id: i.toString(),
                     filename: f.name
                 }));
 
@@ -3974,6 +3968,7 @@
                 formData.append('payload_json', JSON.stringify(payload));
 
                 appFiles.forEach((f, i) => {
+                    // This creates the multipart file streams properly for the Discord/Fluxer API
                     formData.append(`files[${i}]`, f.file, f.name);
                 });
                 fetchOptions.body = formData;
@@ -3992,9 +3987,15 @@
                     alert("Error: " + errorText);
                     btn.innerText = "Error (Check URL)";
                 }
-            } catch (err) { alert("Network Error. Ensure your Webhook URL is correct, or extensions aren't blocking it."); btn.innerText = "Failed"; }
+            } catch (err) {
+                alert("Network Error. Ensure your Webhook URL is correct, or extensions aren't blocking it.");
+                btn.innerText = "Failed";
+            }
 
-            setTimeout(() => { btn.innerText = originalText; }, 2500);
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }, 2500);
         }
 
         function toggleFabDelete() {
